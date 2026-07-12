@@ -17,6 +17,7 @@ import KanbanBuilder from './KanbanBuilder';
 import KpiTableBuilder from './KpiTableBuilder';
 import TcoRoiBuilder from './TcoRoiBuilder';
 import CustomerSatisfactionBuilder from './CustomerSatisfactionBuilder';
+import ExportButton from './ExportButton';
 import { TaskType, courses } from '@/data/course';
 
 interface Props {
@@ -112,10 +113,13 @@ const SubmissionViewer = ({ submission, onOpenChange, isTeacher, onReviewed }: P
                 </p>
               )}
             </div>
-            <span className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${status.color}`}>
-              <Icon name={status.icon} size={13} />
-              {status.label}
-            </span>
+            <div className="flex items-center gap-2 shrink-0">
+              <ExportButton taskType={taskType} taskTitle={submission.task_title} content={submission.content} variant="ghost" />
+              <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${status.color}`}>
+                <Icon name={status.icon} size={13} />
+                {status.label}
+              </span>
+            </div>
           </div>
 
           <div className="mb-6">{renderBuilder()}</div>

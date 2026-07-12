@@ -28,6 +28,7 @@ import KanbanBuilder from './KanbanBuilder';
 import KpiTableBuilder from './KpiTableBuilder';
 import TcoRoiBuilder from './TcoRoiBuilder';
 import CustomerSatisfactionBuilder from './CustomerSatisfactionBuilder';
+import ExportButton from './ExportButton';
 
 interface Props {
   taskType: TaskType;
@@ -207,30 +208,34 @@ const TaskWorkspace = ({ taskType, taskKey, taskTitle, onSubmitted }: Props) => 
           )}
         </div>
 
-        {(content || submissionStatus) && (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive text-xs h-8">
-                <Icon name="RotateCcw" size={13} className="mr-1.5" />
-                Начать заново
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="bg-card border-border rounded-2xl">
-              <AlertDialogHeader>
-                <AlertDialogTitle>Начать задание заново?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Весь прогресс по этому заданию будет удалён без возможности восстановления.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="rounded-xl">Отмена</AlertDialogCancel>
-                <AlertDialogAction onClick={restart} disabled={resetting} className="bg-destructive hover:bg-destructive/90 rounded-xl">
-                  {resetting ? <Icon name="Loader2" size={14} className="animate-spin" /> : 'Удалить и начать заново'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
+        <div className="flex items-center gap-2">
+          {content && <ExportButton taskType={taskType} taskTitle={taskTitle} content={content} />}
+
+          {(content || submissionStatus) && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive text-xs h-8">
+                  <Icon name="RotateCcw" size={13} className="mr-1.5" />
+                  Начать заново
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="bg-card border-border rounded-2xl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Начать задание заново?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Весь прогресс по этому заданию будет удалён без возможности восстановления.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="rounded-xl">Отмена</AlertDialogCancel>
+                  <AlertDialogAction onClick={restart} disabled={resetting} className="bg-destructive hover:bg-destructive/90 rounded-xl">
+                    {resetting ? <Icon name="Loader2" size={14} className="animate-spin" /> : 'Удалить и начать заново'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
       </div>
 
       {renderBuilder()}
