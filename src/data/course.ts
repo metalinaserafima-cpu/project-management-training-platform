@@ -1,3 +1,5 @@
+export type TaskType = 'mindmap' | 'baccm' | 'stakeholders' | 'smart' | 'persona';
+
 export interface Lesson {
   id: number;
   title: string;
@@ -10,6 +12,8 @@ export interface Lesson {
   links: { label: string; url: string }[];
   task: string;
   tools: string[];
+  taskType: TaskType;
+  taskKey: string;
 }
 
 export interface Course {
@@ -62,6 +66,8 @@ export const initiationCourse: Course = {
       ],
       task: 'Применив методы ТРИЗ (фокальные объекты, интеллект-карту или метод маленьких человечков), сформулируйте и визуально представьте идею вашего проекта.',
       tools: ['Pixso', 'Jay Flow', 'Яндекс Концепт', 'VK Доска'],
+      taskType: 'mindmap',
+      taskKey: 'task-1-idea-triz',
     },
     {
       id: 2,
@@ -92,6 +98,8 @@ export const initiationCourse: Course = {
       ],
       task: 'Постройте концептуальный фреймворк BACCM для вашего проекта: опишите каждый из 6 элементов модели.',
       tools: ['Pixso', 'Jay Flow', 'Яндекс Концепт', 'VK Доска'],
+      taskType: 'baccm',
+      taskKey: 'task-2-baccm',
     },
     {
       id: 3,
@@ -122,6 +130,8 @@ export const initiationCourse: Course = {
       ],
       task: 'Постройте карту стейкхолдеров и матрицу «Влияние/Интерес» для вашего проекта, распределив участников по квадрантам.',
       tools: ['Pixso', 'Jay Flow', 'Яндекс Концепт', 'VK Доска'],
+      taskType: 'stakeholders',
+      taskKey: 'task-3-stakeholders',
     },
     {
       id: 4,
@@ -152,6 +162,8 @@ export const initiationCourse: Course = {
       ],
       task: 'Сформулируйте целевые показатели вашего проекта по методу SMART и перечислите мероприятия по их достижению.',
       tools: ['Pixso', 'Jay Flow', 'Яндекс Концепт', 'VK Доска'],
+      taskType: 'smart',
+      taskKey: 'task-4-smart',
     },
     {
       id: 5,
@@ -181,6 +193,8 @@ export const initiationCourse: Course = {
       ],
       task: 'С помощью метода персон выявите ключевые категории целевой аудитории проекта по ролям, целям и сегментам. Оформите карточки персон.',
       tools: ['Яндекс Концепт', 'Pixso', 'Jay Flow', 'VK Доска'],
+      taskType: 'persona',
+      taskKey: 'task-5-persona',
     },
   ],
 };

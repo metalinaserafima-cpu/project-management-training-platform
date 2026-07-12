@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { initiationCourse } from '@/data/course';
+import TaskWorkspace from '@/components/tasks/TaskWorkspace';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   open: boolean;
@@ -14,18 +17,15 @@ const CoursePlayer = ({ open, onOpenChange }: Props) => {
   const course = initiationCourse;
   const [current, setCurrent] = useState(0);
   const [completed, setCompleted] = useState<number[]>([]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const lesson = course.lessons[current];
   const isDone = completed.includes(lesson.id);
   const progress = Math.round((completed.length / course.lessons.length) * 100);
   const totalXp = course.lessons.filter((l) => completed.includes(l.id)).reduce((s, l) => s + l.xp, 0);
 
-  const complete = () => {
-    if (!isDone) {
-      setCompleted((p) => [...p, lesson.id]);
-      const isLast = completed.length + 1 === course.lessons.length;
-      toast.success(isLast ? `Курс пройден! +${lesson.xp} XP 🎓` : `Урок пройден! +${lesson.xp} XP ⚡`);
-    }
+  const goNext = () => {
     if (current < course.lessons.length - 1) setCurrent((c) => c + 1);
   };
 
@@ -135,12 +135,34 @@ const CoursePlayer = ({ open, onOpenChange }: Props) => {
                   <Icon name="ClipboardCheck" size={18} className="text-accent" />
                   Практическое задание
                 </h4>
-                <p className="text-[15px] leading-relaxed mb-4">{lesson.task}</p>
-                <div className="flex flex-wrap gap-2">
-                  {lesson.tools.map((t) => (
-                    <span key={t} className="text-xs px-3 py-1 rounded-full bg-secondary text-muted-foreground">{t}</span>
-                  ))}
-                </div>
+                <p className="text-[15px] leading-relaxed mb-5">{lesson.task}</p>
+
+                {!user ? (
+                  <div className="rounded-xl border border-dashed border-border p-6 text-center bg-card/40">
+                    <Icon name="LogIn" size={24} className="mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground mb-3">Войдите, чтобы выполнить задание прямо здесь</p>
+                    <Button
+                      size="sm"
+                      onClick={() => { onOpenChange(false); navigate('/auth'); }}
+                      className="bg-gradient-brand border-0 rounded-xl"
+                    >
+                      Войти или зарегистрироваться
+                    </Button>
+                  </div>
+                ) : (
+                  <TaskWorkspace
+                    taskType={lesson.taskType}
+                    taskKey={lesson.taskKey}
+                    taskTitle={lesson.title}
+                    onSubmitted={() => {
+                      if (!completed.includes(lesson.id)) {
+                        setCompleted((p) => [...p, lesson.id]);
+                        const isLast = completed.length + 1 === course.lessons.length;
+                        toast.success(isLast ? `Курс пройден! +${lesson.xp} XP 🎓` : `+${lesson.xp} XP ⚡`);
+                      }
+                    }}
+                  />
+                )}
               </div>
             </div>
 
@@ -156,12 +178,11 @@ const CoursePlayer = ({ open, onOpenChange }: Props) => {
               </Button>
 
               <Button
-                onClick={complete}
-                className="bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl px-6"
+                onClick={goNext}
+                disabled={current === course.lessons.length - 1}
+                className="bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl px-6 disabled:opacity-30"
               >
-                {isDone
-                  ? current === course.lessons.length - 1 ? 'Завершить' : 'Следующий урок'
-                  : current === course.lessons.length - 1 ? 'Пройти и завершить' : 'Пройти урок'}
+                Следующий урок
                 <Icon name="ArrowRight" size={16} className="ml-1" />
               </Button>
             </div>

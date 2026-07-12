@@ -1,18 +1,27 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 const navLinks = [
   { label: 'Главная', href: '#hero' },
-  { label: 'Проекты', href: '#projects' },
   { label: 'Курсы', href: '#courses' },
   { label: 'Прогресс', href: '#progress' },
-  { label: 'Профиль', href: '#profile' },
 ];
 
 const Header = () => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -54,12 +63,45 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-            Войти
-          </Button>
-          <Button className="bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl">
-            Начать бесплатно
-          </Button>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-xl bg-secondary/60 hover:bg-secondary transition-colors">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-brand flex items-center justify-center font-display font-bold text-sm">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm font-medium max-w-[120px] truncate">{user.name}</span>
+                  <Icon name="ChevronDown" size={14} className="text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-card border-border">
+                <div className="px-2 py-1.5">
+                  <div className="text-sm font-medium truncate">{user.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {user.role === 'teacher' ? 'Преподаватель' : 'Студент'}
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/projects')} className="cursor-pointer">
+                  <Icon name="FolderKanban" size={15} className="mr-2" />
+                  {user.role === 'teacher' ? 'Работы студентов' : 'Мои проекты'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive focus:text-destructive">
+                  <Icon name="LogOut" size={15} className="mr-2" />
+                  Выйти
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" onClick={() => navigate('/auth')} className="text-muted-foreground hover:text-foreground">
+                Войти
+              </Button>
+              <Button onClick={() => navigate('/auth')} className="bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl">
+                Начать бесплатно
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -82,9 +124,31 @@ const Header = () => {
                 {l.label}
               </button>
             ))}
-            <Button className="bg-gradient-brand border-0 font-semibold rounded-xl mt-2">
-              Начать бесплатно
-            </Button>
+            {user ? (
+              <>
+                <button
+                  onClick={() => { setOpen(false); navigate('/projects'); }}
+                  className="px-4 py-3 rounded-xl text-left font-medium hover:bg-secondary/60 transition-colors flex items-center gap-2"
+                >
+                  <Icon name="FolderKanban" size={16} />
+                  {user.role === 'teacher' ? 'Работы студентов' : 'Мои проекты'}
+                </button>
+                <Button
+                  variant="ghost"
+                  onClick={() => { setOpen(false); logout(); }}
+                  className="justify-start text-destructive hover:text-destructive"
+                >
+                  <Icon name="LogOut" size={16} className="mr-2" /> Выйти
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={() => { setOpen(false); navigate('/auth'); }}
+                className="bg-gradient-brand border-0 font-semibold rounded-xl mt-2"
+              >
+                Войти
+              </Button>
+            )}
           </div>
         </div>
       )}
