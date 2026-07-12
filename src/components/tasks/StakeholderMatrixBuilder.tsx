@@ -1,19 +1,19 @@
 import { useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
-type Level = 'high' | 'medium' | 'low';
+type Importance = 'high' | 'medium' | 'low';
+type Group = 'consumer' | 'other';
 
 interface Stakeholder {
   id: string;
   name: string;
   role: string;
-  influence: Level;
-  interest: Level;
+  group: Group;
+  importance: Importance;
   strategy: string;
 }
 
@@ -21,47 +21,32 @@ export interface StakeholderMatrixData {
   stakeholders: Stakeholder[];
 }
 
-type QuadrantKey = 'manage' | 'satisfy' | 'inform' | 'monitor';
+const defaultData = (): StakeholderMatrixData => ({ stakeholders: [] });
 
-const quadrants: { key: QuadrantKey; title: string; hint: string; color: string; hex: string }[] = [
-  { key: 'manage', title: 'Управлять плотно', hint: 'Высокое влияние, высокий интерес', color: 'border-fuchsia-500/40 bg-fuchsia-500/5', hex: '#d946ef' },
-  { key: 'satisfy', title: 'Держать довольными', hint: 'Высокое влияние, низкий интерес', color: 'border-violet-500/40 bg-violet-500/5', hex: '#8b5cf6' },
-  { key: 'inform', title: 'Информировать', hint: 'Низкое влияние, высокий интерес', color: 'border-cyan-500/40 bg-cyan-500/5', hex: '#06b6d4' },
-  { key: 'monitor', title: 'Наблюдать', hint: 'Низкое влияние, низкий интерес', color: 'border-slate-500/40 bg-slate-500/5', hex: '#64748b' },
+const emptyDraft = () => ({ name: '', role: '', group: 'other' as Group, importance: 'medium' as Importance, strategy: '' });
+
+const groupOptions: { value: Group; label: string }[] = [
+  { value: 'consumer', label: 'Потребители' },
+  { value: 'other', label: 'Другие интересанты' },
 ];
 
-const levelOptions: { value: Level; label: string }[] = [
-  { value: 'high', label: 'Высокое' },
-  { value: 'medium', label: 'Среднее' },
-  { value: 'low', label: 'Низкое' },
+const importanceOptions: { value: Importance; label: string }[] = [
+  { value: 'high', label: 'Высокая' },
+  { value: 'medium', label: 'Средняя' },
+  { value: 'low', label: 'Низкая' },
 ];
 
-const levelBadge: Record<Level, string> = {
+const importanceBadge: Record<Importance, string> = {
   high: 'text-rose-300 bg-rose-400/15',
   medium: 'text-amber-300 bg-amber-400/15',
   low: 'text-emerald-300 bg-emerald-400/15',
 };
 
-const levelLabel: Record<Level, string> = { high: 'Высокое', medium: 'Среднее', low: 'Низкое' };
+const importanceLabel: Record<Importance, string> = { high: 'Высокая', medium: 'Средняя', low: 'Низкая' };
 
-const getQuadrant = (s: Stakeholder): QuadrantKey => {
-  const highInfluence = s.influence === 'high';
-  const highInterest = s.interest === 'high';
-  if (highInfluence && highInterest) return 'manage';
-  if (highInfluence && !highInterest) return 'satisfy';
-  if (!highInfluence && highInterest) return 'inform';
-  return 'monitor';
-};
+const importanceDot: Record<Importance, string> = { high: 'bg-rose-400', medium: 'bg-amber-400', low: 'bg-emerald-400' };
 
-const defaultData = (): StakeholderMatrixData => ({ stakeholders: [] });
-
-const emptyDraft = () => ({ name: '', role: '', influence: 'medium' as Level, interest: 'medium' as Level, strategy: '' });
-
-const views: { key: 'matrix' | 'chart' | 'table'; label: string; icon: string }[] = [
-  { key: 'matrix', label: 'Матрица', icon: 'LayoutGrid' },
-  { key: 'chart', label: 'Диаграмма', icon: 'PieChart' },
-  { key: 'table', label: 'Таблица', icon: 'Table' },
-];
+const importanceRadius: Record<Importance, number> = { high: 0.62, medium: 0.8, low: 0.96 };
 
 interface Props {
   value: StakeholderMatrixData | null;
@@ -71,7 +56,6 @@ interface Props {
 
 const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
   const data = value && value.stakeholders ? value : defaultData();
-  const [view, setView] = useState<'matrix' | 'chart' | 'table'>('matrix');
   const [draft, setDraft] = useState(emptyDraft());
 
   const addStakeholder = () => {
@@ -84,125 +68,131 @@ const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
     onChange({ stakeholders: data.stakeholders.filter((s) => s.id !== id) });
   };
 
-  const chartData = quadrants
-    .map((q) => ({ name: q.title, value: data.stakeholders.filter((s) => getQuadrant(s) === q.key).length, color: q.hex }))
-    .filter((d) => d.value > 0);
+  const consumers = data.stakeholders.filter((s) => s.group === 'consumer');
+  const others = data.stakeholders.filter((s) => s.group === 'other');
+
+  const consumerPos = (i: number, total: number) => {
+    if (total <= 1) return { x: 50, y: 50 };
+    const angle = (i / total) * 2 * Math.PI - Math.PI / 2;
+    const r = 13;
+    return { x: 50 + r * Math.cos(angle), y: 50 + r * Math.sin(angle) };
+  };
+
+  const otherPos = (s: Stakeholder, i: number, total: number) => {
+    const angle = (i / total) * 2 * Math.PI - Math.PI / 2;
+    const r = importanceRadius[s.importance] * 44;
+    return { x: 50 + r * Math.cos(angle), y: 50 + r * Math.sin(angle) };
+  };
 
   return (
     <div>
-      <div className="flex flex-wrap gap-2 mb-4">
-        {views.map((v) => (
-          <button
-            key={v.key}
-            onClick={() => setView(v.key)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-all ${
-              view === v.key ? 'bg-gradient-brand text-white' : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <Icon name={v.icon} size={14} />
-            {v.label}
-          </button>
-        ))}
+      <div className="rounded-2xl border border-border bg-secondary/20 p-5">
+        <div className="font-display font-semibold text-sm mb-1 flex items-center gap-2">
+          <Icon name="Target" size={16} />
+          Карта важности стейкхолдеров
+        </div>
+        <p className="text-xs text-muted-foreground mb-4">В центре — потребители, чем важнее интересант, тем ближе он к центру</p>
+
+        {data.stakeholders.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-16">Список пуст. Добавьте стейкхолдеров через форму ниже.</p>
+        ) : (
+          <div className="relative w-full max-w-[440px] mx-auto aspect-square mb-2">
+            <div className="absolute inset-0 rounded-full bg-primary/10 border border-primary/20" />
+            <div className="absolute inset-[18%] rounded-full bg-primary/20 border border-primary/25" />
+            <div className="absolute inset-[38%] rounded-full bg-gradient-brand flex items-center justify-center text-center px-2">
+              <span className="text-[11px] font-display font-semibold text-white leading-tight">Потребители</span>
+            </div>
+
+            {others.map((s, i) => {
+              const pos = otherPos(s, i, others.length);
+              return (
+                <div
+                  key={s.id}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 group"
+                  style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                >
+                  <span className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-card border border-border text-xs font-medium shadow-sm whitespace-nowrap">
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${importanceDot[s.importance]}`} />
+                    {s.name}
+                    {!readOnly && (
+                      <button onClick={() => removeStakeholder(s.id)} className="text-muted-foreground hover:text-destructive">
+                        <Icon name="X" size={11} />
+                      </button>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+
+            {consumers.map((s, i) => {
+              const pos = consumerPos(i, consumers.length);
+              return (
+                <div
+                  key={s.id}
+                  className="absolute -translate-x-1/2 -translate-y-1/2"
+                  style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                >
+                  <span className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white text-foreground border border-white/40 text-xs font-medium shadow-sm whitespace-nowrap">
+                    {s.name}
+                    {!readOnly && (
+                      <button onClick={() => removeStakeholder(s.id)} className="text-muted-foreground hover:text-destructive">
+                        <Icon name="X" size={11} />
+                      </button>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {data.stakeholders.length > 0 && (
+          <div className="flex items-center justify-center gap-4 mt-3 text-[11px] text-muted-foreground">
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-rose-400" /> Высокая важность</span>
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-400" /> Средняя</span>
+            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-400" /> Низкая</span>
+          </div>
+        )}
       </div>
 
-      {view === 'matrix' && (
-        <div>
-          <div className="flex items-center gap-6 mb-3 px-1 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5"><Icon name="ArrowUp" size={12} /> Влияние</span>
-            <span className="flex items-center gap-1.5"><Icon name="ArrowRight" size={12} /> Интерес</span>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            {quadrants.map((q) => (
-              <div key={q.key} className={`rounded-2xl border-2 p-4 min-h-[140px] ${q.color}`}>
-                <div className="mb-3">
-                  <div className="font-display font-semibold text-sm">{q.title}</div>
-                  <div className="text-[11px] text-muted-foreground">{q.hint}</div>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {data.stakeholders
-                    .filter((s) => getQuadrant(s) === q.key)
-                    .map((s) => (
-                      <span key={s.id} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card border border-border text-xs font-medium">
-                        {s.name}
-                        {s.role && <span className="text-muted-foreground font-normal">· {s.role}</span>}
-                        {!readOnly && (
-                          <button onClick={() => removeStakeholder(s.id)} className="text-muted-foreground hover:text-destructive">
-                            <Icon name="X" size={11} />
-                          </button>
-                        )}
-                      </span>
-                    ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {view === 'chart' && (
-        <div className="rounded-2xl border border-border bg-secondary/20 p-5">
-          {chartData.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-12">Нет данных для диаграммы. Добавьте стейкхолдеров через форму ниже.</p>
-          ) : (
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={(d) => `${d.value}`}>
-                    {chartData.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} stroke="transparent" />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, fontSize: 12 }} />
-                  <Legend wrapperStyle={{ fontSize: 12 }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
-      )}
-
-      {view === 'table' && (
-        <div className="rounded-2xl border border-border bg-secondary/20 overflow-x-auto">
-          {data.stakeholders.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-12">Список пуст. Добавьте стейкхолдеров через форму ниже.</p>
-          ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left font-display font-semibold px-4 py-3">Название стейкхолдера</th>
-                  <th className="text-left font-display font-semibold px-4 py-3">Роль</th>
-                  <th className="text-left font-display font-semibold px-4 py-3">Влияние</th>
-                  <th className="text-left font-display font-semibold px-4 py-3">Интерес</th>
-                  <th className="text-left font-display font-semibold px-4 py-3">Стратегия взаимодействия</th>
-                  {!readOnly && <th className="px-4 py-3" />}
+      <div className="rounded-2xl border border-border bg-secondary/20 overflow-x-auto mt-4">
+        {data.stakeholders.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-12">Список пуст. Добавьте стейкхолдеров через форму ниже.</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left font-display font-semibold px-4 py-3">Название стейкхолдера</th>
+                <th className="text-left font-display font-semibold px-4 py-3">Роль</th>
+                <th className="text-left font-display font-semibold px-4 py-3">Группа</th>
+                <th className="text-left font-display font-semibold px-4 py-3">Важность</th>
+                <th className="text-left font-display font-semibold px-4 py-3">Стратегия взаимодействия</th>
+                {!readOnly && <th className="px-4 py-3" />}
+              </tr>
+            </thead>
+            <tbody>
+              {data.stakeholders.map((s) => (
+                <tr key={s.id} className="border-b border-border last:border-0">
+                  <td className="px-4 py-3 font-medium">{s.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{s.role}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{s.group === 'consumer' ? 'Потребители' : 'Другие интересанты'}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${importanceBadge[s.importance]}`}>{importanceLabel[s.importance]}</span>
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground max-w-[240px]">{s.strategy}</td>
+                  {!readOnly && (
+                    <td className="px-4 py-3">
+                      <button onClick={() => removeStakeholder(s.id)} className="text-muted-foreground hover:text-destructive">
+                        <Icon name="Trash2" size={14} />
+                      </button>
+                    </td>
+                  )}
                 </tr>
-              </thead>
-              <tbody>
-                {data.stakeholders.map((s) => (
-                  <tr key={s.id} className="border-b border-border last:border-0">
-                    <td className="px-4 py-3 font-medium">{s.name}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{s.role}</td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${levelBadge[s.influence]}`}>{levelLabel[s.influence]}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${levelBadge[s.interest]}`}>{levelLabel[s.interest]}</span>
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground max-w-[240px]">{s.strategy}</td>
-                    {!readOnly && (
-                      <td className="px-4 py-3">
-                        <button onClick={() => removeStakeholder(s.id)} className="text-muted-foreground hover:text-destructive">
-                          <Icon name="Trash2" size={14} />
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      )}
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
       {!readOnly && (
         <div className="rounded-2xl border border-border bg-secondary/20 p-5 mt-4">
@@ -230,26 +220,26 @@ const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Влияние</label>
-              <Select value={draft.influence} onValueChange={(v: Level) => setDraft((p) => ({ ...p, influence: v }))}>
+              <label className="text-xs text-muted-foreground mb-1 block">Группа</label>
+              <Select value={draft.group} onValueChange={(v: Group) => setDraft((p) => ({ ...p, group: v }))}>
                 <SelectTrigger className="h-9 text-sm bg-card/60 border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {levelOptions.map((o) => (
+                  {groupOptions.map((o) => (
                     <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Интерес</label>
-              <Select value={draft.interest} onValueChange={(v: Level) => setDraft((p) => ({ ...p, interest: v }))}>
+              <label className="text-xs text-muted-foreground mb-1 block">Важность</label>
+              <Select value={draft.importance} onValueChange={(v: Importance) => setDraft((p) => ({ ...p, importance: v }))}>
                 <SelectTrigger className="h-9 text-sm bg-card/60 border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {levelOptions.map((o) => (
+                  {importanceOptions.map((o) => (
                     <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                   ))}
                 </SelectContent>
