@@ -52,7 +52,7 @@ export interface Submission {
   task_key: string;
   task_title: string;
   content: Record<string, unknown>;
-  status: 'in_progress' | 'submitted' | 'reviewed';
+  status: 'in_progress' | 'submitted' | 'reviewed' | 'needs_revision';
   teacher_comment: string | null;
   grade: number | null;
   created_at: string;
@@ -70,9 +70,10 @@ export const submissionsApi = {
       method: 'POST',
       body: JSON.stringify({ task_key: taskKey, task_title: taskTitle, content, status }),
     }),
-  review: (id: number, grade: number | null, comment: string, status: 'reviewed') =>
+  review: (id: number, grade: number | null, comment: string, status: 'reviewed' | 'needs_revision') =>
     request(`${SUBMISSIONS_URL}?id=${id}`, {
       method: 'PUT',
       body: JSON.stringify({ grade, teacher_comment: comment, status }),
     }),
+  reset: (id: number) => request(`${SUBMISSIONS_URL}?id=${id}`, { method: 'DELETE' }),
 };

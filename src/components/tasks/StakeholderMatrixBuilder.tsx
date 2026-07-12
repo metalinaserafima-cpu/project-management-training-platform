@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
-type Importance = 'high' | 'medium' | 'low';
+type Level = 'high' | 'medium' | 'low';
 type Group = 'consumer' | 'other';
 
 interface Stakeholder {
@@ -13,7 +13,8 @@ interface Stakeholder {
   name: string;
   role: string;
   group: Group;
-  importance: Importance;
+  influence: Level;
+  interest: Level;
   strategy: string;
 }
 
@@ -23,29 +24,38 @@ export interface StakeholderMatrixData {
 
 const defaultData = (): StakeholderMatrixData => ({ stakeholders: [] });
 
-const emptyDraft = () => ({ name: '', role: '', group: 'other' as Group, importance: 'medium' as Importance, strategy: '' });
+const emptyDraft = () => ({ name: '', role: '', group: 'other' as Group, influence: 'medium' as Level, interest: 'medium' as Level, strategy: '' });
 
 const groupOptions: { value: Group; label: string }[] = [
   { value: 'consumer', label: 'Потребители' },
   { value: 'other', label: 'Другие интересанты' },
 ];
 
-const importanceOptions: { value: Importance; label: string }[] = [
-  { value: 'high', label: 'Высокая' },
-  { value: 'medium', label: 'Средняя' },
-  { value: 'low', label: 'Низкая' },
+const levelOptions: { value: Level; label: string }[] = [
+  { value: 'high', label: 'Высокое' },
+  { value: 'medium', label: 'Среднее' },
+  { value: 'low', label: 'Низкое' },
 ];
 
-const importanceBadge: Record<Importance, string> = {
+const levelBadge: Record<Level, string> = {
   high: 'text-rose-300 bg-rose-400/15',
   medium: 'text-amber-300 bg-amber-400/15',
   low: 'text-emerald-300 bg-emerald-400/15',
 };
 
-const importanceLabel: Record<Importance, string> = { high: 'Высокая', medium: 'Средняя', low: 'Низкая' };
+const levelLabel: Record<Level, string> = { high: 'Высокое', medium: 'Среднее', low: 'Низкое' };
+const levelValue: Record<Level, number> = { high: 3, medium: 2, low: 1 };
+
+type Importance = 'high' | 'medium' | 'low';
+
+const importanceOf = (s: Stakeholder): Importance => {
+  const score = levelValue[s.influence] + levelValue[s.interest];
+  if (score >= 5) return 'high';
+  if (score === 4) return 'medium';
+  return 'low';
+};
 
 const importanceDot: Record<Importance, string> = { high: 'bg-rose-400', medium: 'bg-amber-400', low: 'bg-emerald-400' };
-
 const importanceRadius: Record<Importance, number> = { high: 0.62, medium: 0.8, low: 0.96 };
 
 interface Props {
@@ -80,7 +90,7 @@ const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
 
   const otherPos = (s: Stakeholder, i: number, total: number) => {
     const angle = (i / total) * 2 * Math.PI - Math.PI / 2;
-    const r = importanceRadius[s.importance] * 44;
+    const r = importanceRadius[importanceOf(s)] * 44;
     return { x: 50 + r * Math.cos(angle), y: 50 + r * Math.sin(angle) };
   };
 
@@ -91,7 +101,7 @@ const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
           <Icon name="Target" size={16} />
           Карта важности стейкхолдеров
         </div>
-        <p className="text-xs text-muted-foreground mb-4">В центре — потребители, чем важнее интересант, тем ближе он к центру</p>
+        <p className="text-xs text-muted-foreground mb-4">В центре — потребители, чем выше влияние и интерес остальных интересантов, тем ближе они к центру</p>
 
         {data.stakeholders.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-16">Список пуст. Добавьте стейкхолдеров через форму ниже.</p>
@@ -112,7 +122,7 @@ const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
                   style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
                 >
                   <span className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-card border border-border text-xs font-medium shadow-sm whitespace-nowrap">
-                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${importanceDot[s.importance]}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${importanceDot[importanceOf(s)]}`} />
                     {s.name}
                     {!readOnly && (
                       <button onClick={() => removeStakeholder(s.id)} className="text-muted-foreground hover:text-destructive">
@@ -164,8 +174,8 @@ const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
               <tr className="border-b border-border">
                 <th className="text-left font-display font-semibold px-4 py-3">Название стейкхолдера</th>
                 <th className="text-left font-display font-semibold px-4 py-3">Роль</th>
-                <th className="text-left font-display font-semibold px-4 py-3">Группа</th>
-                <th className="text-left font-display font-semibold px-4 py-3">Важность</th>
+                <th className="text-left font-display font-semibold px-4 py-3">Влияние</th>
+                <th className="text-left font-display font-semibold px-4 py-3">Интерес</th>
                 <th className="text-left font-display font-semibold px-4 py-3">Стратегия взаимодействия</th>
                 {!readOnly && <th className="px-4 py-3" />}
               </tr>
@@ -175,9 +185,11 @@ const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
                 <tr key={s.id} className="border-b border-border last:border-0">
                   <td className="px-4 py-3 font-medium">{s.name}</td>
                   <td className="px-4 py-3 text-muted-foreground">{s.role}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{s.group === 'consumer' ? 'Потребители' : 'Другие интересанты'}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${importanceBadge[s.importance]}`}>{importanceLabel[s.importance]}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${levelBadge[s.influence]}`}>{levelLabel[s.influence]}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${levelBadge[s.interest]}`}>{levelLabel[s.interest]}</span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground max-w-[240px]">{s.strategy}</td>
                   {!readOnly && (
@@ -220,7 +232,7 @@ const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Группа</label>
+              <label className="text-xs text-muted-foreground mb-1 block">Группа (для карты)</label>
               <Select value={draft.group} onValueChange={(v: Group) => setDraft((p) => ({ ...p, group: v }))}>
                 <SelectTrigger className="h-9 text-sm bg-card/60 border-border">
                   <SelectValue />
@@ -232,14 +244,28 @@ const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
                 </SelectContent>
               </Select>
             </div>
+            <div />
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Важность</label>
-              <Select value={draft.importance} onValueChange={(v: Importance) => setDraft((p) => ({ ...p, importance: v }))}>
+              <label className="text-xs text-muted-foreground mb-1 block">Влияние</label>
+              <Select value={draft.influence} onValueChange={(v: Level) => setDraft((p) => ({ ...p, influence: v }))}>
                 <SelectTrigger className="h-9 text-sm bg-card/60 border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {importanceOptions.map((o) => (
+                  {levelOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Интерес</label>
+              <Select value={draft.interest} onValueChange={(v: Level) => setDraft((p) => ({ ...p, interest: v }))}>
+                <SelectTrigger className="h-9 text-sm bg-card/60 border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {levelOptions.map((o) => (
                     <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                   ))}
                 </SelectContent>

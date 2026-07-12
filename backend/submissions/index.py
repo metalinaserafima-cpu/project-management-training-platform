@@ -129,7 +129,7 @@ def handler(event: dict, context) -> dict:
             cur.close()
             conn.close()
             return _resp(400, {'error': 'task_key и task_title обязательны'})
-        if status not in ('in_progress', 'submitted', 'reviewed'):
+        if status not in ('in_progress', 'submitted', 'reviewed', 'needs_revision'):
             status = 'in_progress'
 
         content_json = json.dumps(content, ensure_ascii=False).replace("'", "''")
@@ -165,9 +165,11 @@ def handler(event: dict, context) -> dict:
             return _resp(404, {'error': 'Работа не найдена'})
 
         if role == 'teacher':
-            grade = body.get('grade')
-            comment = body.get('teacher_comment')
+            grade = body.get('grade', existing['grade'])
+            comment = body.get('teacher_comment', existing['teacher_comment'])
             new_status = body.get('status') or 'reviewed'
+            if new_status not in ('reviewed', 'needs_revision', 'submitted'):
+                new_status = 'reviewed'
             cur.execute(
                 """
                 UPDATE submissions
@@ -209,6 +211,30 @@ def handler(event: dict, context) -> dict:
         cur.close()
         conn.close()
         return _resp(200, {'submission': dict(row)})
+
+    if method == 'DELETE':
+        submission_id = params.get('id')
+        if not submission_id:
+            cur.close()
+            conn.close()
+            return _resp(400, {'error': 'id обязателен'})
+
+        cur.execute("SELECT * FROM submissions WHERE id = %s" % int(submission_id))
+        existing = cur.fetchone()
+        if not existing:
+            cur.close()
+            conn.close()
+            return _resp(404, {'error': 'Работа не найдена'})
+        if existing['user_id'] != uid:
+            cur.close()
+            conn.close()
+            return _resp(403, {'error': 'Нет доступа к этой работе'})
+
+        cur.execute("DELETE FROM submissions WHERE id = %s" % int(submission_id))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return _resp(200, {'success': True})
 
     cur.close()
     conn.close()

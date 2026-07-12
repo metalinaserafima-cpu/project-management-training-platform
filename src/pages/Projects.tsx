@@ -12,19 +12,21 @@ const statusMeta: Record<string, { label: string; color: string; icon: string }>
   in_progress: { label: 'В процессе', color: 'text-amber-300 bg-amber-400/15', icon: 'Pencil' },
   submitted: { label: 'На проверке', color: 'text-cyan-300 bg-cyan-400/15', icon: 'Send' },
   reviewed: { label: 'Проверено', color: 'text-emerald-300 bg-emerald-400/15', icon: 'CheckCheck' },
+  needs_revision: { label: 'На доработке', color: 'text-orange-300 bg-orange-400/15', icon: 'RotateCcw' },
 };
 
 const filters = [
   { key: 'all', label: 'Все' },
   { key: 'submitted', label: 'На проверке' },
   { key: 'reviewed', label: 'Проверено' },
+  { key: 'needs_revision', label: 'На доработке' },
   { key: 'in_progress', label: 'В процессе' },
 ];
 
 const constructorLabel: Record<string, string> = {
   mindmap: 'Конструктор: 3 метода ТРИЗ',
   baccm: 'Конструктор: форма BACCM',
-  stakeholders: 'Конструктор: матрица стейкхолдеров',
+  stakeholders: 'Конструктор: карта стейкхолдеров',
   smart: 'Конструктор: SMART-цели',
   persona: 'Конструктор: карточки персон',
 };

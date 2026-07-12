@@ -33,12 +33,13 @@ const statusLabel: Record<string, { label: string; color: string; icon: string }
   in_progress: { label: 'В процессе', color: 'text-amber-300 bg-amber-400/15', icon: 'Pencil' },
   submitted: { label: 'На проверке', color: 'text-cyan-300 bg-cyan-400/15', icon: 'Send' },
   reviewed: { label: 'Проверено', color: 'text-emerald-300 bg-emerald-400/15', icon: 'CheckCheck' },
+  needs_revision: { label: 'На доработке', color: 'text-orange-300 bg-orange-400/15', icon: 'RotateCcw' },
 };
 
 const SubmissionViewer = ({ submission, onOpenChange, isTeacher, onReviewed }: Props) => {
   const [grade, setGrade] = useState(submission?.grade?.toString() || '');
   const [comment, setComment] = useState(submission?.teacher_comment || '');
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving] = useState<'reviewed' | 'needs_revision' | null>(null);
 
   if (!submission) return null;
   const taskType = getTaskType(submission.task_key);
@@ -62,18 +63,18 @@ const SubmissionViewer = ({ submission, onOpenChange, isTeacher, onReviewed }: P
     }
   };
 
-  const submitReview = async () => {
-    setSaving(true);
+  const submitReview = async (status: 'reviewed' | 'needs_revision') => {
+    setSaving(status);
     try {
       const gradeNum = grade.trim() ? parseInt(grade, 10) : null;
-      await submissionsApi.review(submission.id, gradeNum, comment, 'reviewed');
-      toast.success('Оценка сохранена');
+      await submissionsApi.review(submission.id, gradeNum, comment, status);
+      toast.success(status === 'reviewed' ? 'Оценка сохранена' : 'Работа возвращена студенту на доработку');
       onReviewed?.();
       onOpenChange(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Не удалось сохранить оценку');
     } finally {
-      setSaving(false);
+      setSaving(null);
     }
   };
 
@@ -121,21 +122,38 @@ const SubmissionViewer = ({ submission, onOpenChange, isTeacher, onReviewed }: P
                 placeholder="Комментарий студенту..."
                 className="min-h-[90px] bg-card border-border resize-none text-sm mb-4"
               />
-              <Button
-                onClick={submitReview}
-                disabled={saving}
-                className="w-full bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl"
-              >
-                {saving ? <Icon name="Loader2" size={16} className="animate-spin" /> : 'Сохранить оценку'}
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button
+                  onClick={() => submitReview('reviewed')}
+                  disabled={saving !== null}
+                  className="flex-1 bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl"
+                >
+                  {saving === 'reviewed' ? <Icon name="Loader2" size={16} className="animate-spin" /> : 'Сохранить оценку'}
+                </Button>
+                <Button
+                  onClick={() => submitReview('needs_revision')}
+                  disabled={saving !== null}
+                  variant="outline"
+                  className="flex-1 border-orange-500/40 text-orange-300 hover:bg-orange-500/10 hover:text-orange-200 rounded-xl"
+                >
+                  {saving === 'needs_revision' ? (
+                    <Icon name="Loader2" size={16} className="animate-spin" />
+                  ) : (
+                    <>
+                      <Icon name="RotateCcw" size={15} className="mr-1.5" />
+                      Вернуть на доработку
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           ) : (
-            submission.status === 'reviewed' && (
-              <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
+            (submission.status === 'reviewed' || submission.status === 'needs_revision') && (
+              <div className={`rounded-2xl border p-5 ${submission.status === 'needs_revision' ? 'border-orange-500/30 bg-orange-500/5' : 'border-primary/30 bg-primary/5'}`}>
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-display font-bold text-sm flex items-center gap-2">
-                    <Icon name="MessageSquare" size={16} className="text-primary" />
-                    Отзыв преподавателя
+                    <Icon name={submission.status === 'needs_revision' ? 'RotateCcw' : 'MessageSquare'} size={16} className={submission.status === 'needs_revision' ? 'text-orange-300' : 'text-primary'} />
+                    {submission.status === 'needs_revision' ? 'Работа возвращена на доработку' : 'Отзыв преподавателя'}
                   </h4>
                   {submission.grade !== null && (
                     <span className="font-display font-extrabold text-lg text-gradient">{submission.grade}/100</span>
