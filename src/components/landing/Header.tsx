@@ -31,6 +31,11 @@ const Header = () => {
 
   const scrollTo = (href: string) => {
     setOpen(false);
+    if (window.location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' }), 100);
+      return;
+    }
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -60,6 +65,15 @@ const Header = () => {
               {l.label}
             </button>
           ))}
+          {user && (
+            <button
+              onClick={() => navigate('/projects')}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors flex items-center gap-1.5"
+            >
+              <Icon name="FolderKanban" size={15} />
+              Проекты
+            </button>
+          )}
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
