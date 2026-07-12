@@ -62,6 +62,7 @@ const MindMapBuilder = ({ value, onChange, readOnly }: Props) => {
     ? { ...defaultData(), ...value }
     : defaultData();
   const [data, setData] = useState<MindMapData>(initial);
+  const [viewMethod, setViewMethod] = useState<MindMapData['method']>(initial.method);
   const [dragId, setDragId] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -71,7 +72,10 @@ const MindMapBuilder = ({ value, onChange, readOnly }: Props) => {
     onChange(next);
   };
 
-  const setMethod = (method: MindMapData['method']) => update({ ...data, method });
+  const setMethod = (method: MindMapData['method']) => {
+    setViewMethod(method);
+    if (!readOnly) update({ ...data, method });
+  };
 
   const addChild = (parentId: string) => {
     const parent = data.nodes.find((n) => n.id === parentId);
@@ -161,12 +165,11 @@ const MindMapBuilder = ({ value, onChange, readOnly }: Props) => {
         {methods.map((m) => (
           <button
             key={m.key}
-            onClick={() => !readOnly && setMethod(m.key)}
-            disabled={readOnly && data.method !== m.key}
+            onClick={() => setMethod(m.key)}
             className={`px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-all ${
-              data.method === m.key
+              viewMethod === m.key
                 ? 'bg-gradient-brand text-white'
-                : 'bg-secondary/50 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:hover:text-muted-foreground'
+                : 'bg-secondary/50 text-muted-foreground hover:text-foreground'
             }`}
           >
             <Icon name={m.icon} size={14} />
@@ -174,8 +177,14 @@ const MindMapBuilder = ({ value, onChange, readOnly }: Props) => {
           </button>
         ))}
       </div>
+      {readOnly && (
+        <p className="text-xs text-muted-foreground mb-4 flex items-center gap-1.5">
+          <Icon name="Info" size={12} />
+          Можно просматривать все методы, но работа отправлена в выбранном на момент сдачи
+        </p>
+      )}
 
-      {data.method === 'mindmap' && (
+      {viewMethod === 'mindmap' && (
         <div className="rounded-2xl border border-border bg-secondary/20 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-secondary/40">
             <span className="text-xs text-muted-foreground flex items-center gap-1.5">
@@ -263,7 +272,7 @@ const MindMapBuilder = ({ value, onChange, readOnly }: Props) => {
         </div>
       )}
 
-      {data.method === 'focal' && (
+      {viewMethod === 'focal' && (
         <div className="rounded-2xl border border-border bg-secondary/20 p-5 space-y-4">
           <p className="text-xs text-muted-foreground flex items-center gap-1.5">
             <Icon name="Info" size={13} />
@@ -320,7 +329,7 @@ const MindMapBuilder = ({ value, onChange, readOnly }: Props) => {
         </div>
       )}
 
-      {data.method === 'homunculus' && (
+      {viewMethod === 'homunculus' && (
         <div className="rounded-2xl border border-border bg-secondary/20 p-5 space-y-4">
           <p className="text-xs text-muted-foreground flex items-center gap-1.5">
             <Icon name="Info" size={13} />
