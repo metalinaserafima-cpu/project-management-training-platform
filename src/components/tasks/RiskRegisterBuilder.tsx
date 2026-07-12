@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import TableScrollArea from './TableScrollArea';
 
 type Level = 'high' | 'medium' | 'low';
 
@@ -77,9 +78,10 @@ const RiskRegisterBuilder = ({ value, onChange, readOnly }: Props) => {
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground flex items-center gap-1.5">
         <Icon name="MoveHorizontal" size={13} />
-        В таблице 8 граф, включая «Владелец риска» — прокрутите её вправо, чтобы увидеть все графы
+        В таблице 8 граф, включая «Владелец риска» — используйте стрелки или прокрутите её вправо
       </p>
-      <div className="rounded-2xl border border-border bg-secondary/20 overflow-x-auto">
+      <div className="rounded-2xl border border-border bg-secondary/20">
+      <TableScrollArea>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border">
@@ -142,6 +144,7 @@ const RiskRegisterBuilder = ({ value, onChange, readOnly }: Props) => {
             ))}
           </tbody>
         </table>
+      </TableScrollArea>
       </div>
 
       {!readOnly && (

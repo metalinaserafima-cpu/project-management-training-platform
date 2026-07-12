@@ -1,6 +1,7 @@
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import TableScrollArea from './TableScrollArea';
 
 interface Stage {
   id: string;
@@ -78,7 +79,8 @@ const GanttChartBuilder = ({ value, onChange, readOnly }: Props) => {
         )}
       </div>
 
-      <div className="rounded-2xl border border-border bg-secondary/20 overflow-x-auto mt-4">
+      <div className="rounded-2xl border border-border bg-secondary/20 mt-4">
+      <TableScrollArea>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border">
@@ -115,6 +117,7 @@ const GanttChartBuilder = ({ value, onChange, readOnly }: Props) => {
             ))}
           </tbody>
         </table>
+      </TableScrollArea>
       </div>
 
       {!readOnly && (

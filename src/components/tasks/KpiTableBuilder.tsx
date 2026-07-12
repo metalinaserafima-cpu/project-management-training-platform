@@ -2,6 +2,7 @@ import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import TableScrollArea from './TableScrollArea';
 
 interface Worker {
   id: string;
@@ -64,7 +65,8 @@ const KpiTableBuilder = ({ value, onChange, readOnly }: Props) => {
         <Icon name="Info" size={13} />
         KPI1 (производительность) и KPI2 (качество) рассчитываются автоматически для каждого работника по мере заполнения данных
       </p>
-      <div className="rounded-2xl border border-border bg-secondary/20 overflow-x-auto">
+      <div className="rounded-2xl border border-border bg-secondary/20">
+      <TableScrollArea>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border">
@@ -119,6 +121,7 @@ const KpiTableBuilder = ({ value, onChange, readOnly }: Props) => {
             </tr>
           </tfoot>
         </table>
+      </TableScrollArea>
       </div>
 
       {!readOnly && (

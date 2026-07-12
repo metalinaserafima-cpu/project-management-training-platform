@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import TableScrollArea from './TableScrollArea';
 
 type Level = 'high' | 'medium' | 'low';
 type Group = 'consumer' | 'other';
@@ -165,18 +166,19 @@ const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
         )}
       </div>
 
-      <div className="rounded-2xl border border-border bg-secondary/20 overflow-x-auto mt-4">
+      <div className="rounded-2xl border border-border bg-secondary/20 mt-4">
         {data.stakeholders.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-12">Список пуст. Добавьте стейкхолдеров через форму ниже.</p>
         ) : (
+          <TableScrollArea>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left font-display font-semibold px-4 py-3">Название стейкхолдера</th>
-                <th className="text-left font-display font-semibold px-4 py-3">Роль</th>
-                <th className="text-left font-display font-semibold px-4 py-3">Влияние</th>
-                <th className="text-left font-display font-semibold px-4 py-3">Интерес</th>
-                <th className="text-left font-display font-semibold px-4 py-3">Стратегия взаимодействия</th>
+                <th className="text-left font-display font-semibold px-4 py-3 min-w-[150px]">Название стейкхолдера</th>
+                <th className="text-left font-display font-semibold px-4 py-3 min-w-[130px]">Роль</th>
+                <th className="text-left font-display font-semibold px-4 py-3 min-w-[110px]">Влияние</th>
+                <th className="text-left font-display font-semibold px-4 py-3 min-w-[110px]">Интерес</th>
+                <th className="text-left font-display font-semibold px-4 py-3 min-w-[220px]">Стратегия взаимодействия</th>
                 {!readOnly && <th className="px-4 py-3" />}
               </tr>
             </thead>
@@ -203,6 +205,7 @@ const StakeholderMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
               ))}
             </tbody>
           </table>
+          </TableScrollArea>
         )}
       </div>
 

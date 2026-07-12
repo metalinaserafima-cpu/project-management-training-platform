@@ -2,6 +2,7 @@ import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import TableScrollArea from './TableScrollArea';
 
 interface Entity {
   id: string;
@@ -106,7 +107,7 @@ const CustomerSatisfactionBuilder = ({ value, onChange, readOnly }: Props) => {
             </Button>
           )}
         </div>
-        <div className="overflow-x-auto">
+        <TableScrollArea>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
@@ -144,7 +145,7 @@ const CustomerSatisfactionBuilder = ({ value, onChange, readOnly }: Props) => {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScrollArea>
         {!readOnly && (
           <Button variant="ghost" size="sm" onClick={() => addEntity('services', 'Продукт')} className="w-full mt-3 h-8 text-xs border border-dashed border-border rounded-lg">
             <Icon name="Plus" size={13} className="mr-1" /> Ещё услуга/продукт
@@ -163,7 +164,7 @@ const CustomerSatisfactionBuilder = ({ value, onChange, readOnly }: Props) => {
             </Button>
           )}
         </div>
-        <div className="overflow-x-auto">
+        <TableScrollArea>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border">
@@ -201,7 +202,7 @@ const CustomerSatisfactionBuilder = ({ value, onChange, readOnly }: Props) => {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScrollArea>
         {!readOnly && (
           <div className="grid sm:grid-cols-2 gap-2 mt-3">
             <Button variant="ghost" size="sm" onClick={() => addEntity('respondents', 'Респондент')} className="h-8 text-xs border border-dashed border-border rounded-lg">
@@ -214,14 +215,15 @@ const CustomerSatisfactionBuilder = ({ value, onChange, readOnly }: Props) => {
         )}
       </div>
 
-      <div className="rounded-2xl border border-border bg-secondary/20 overflow-x-auto">
+      <div className="rounded-2xl border border-border bg-secondary/20">
+      <TableScrollArea>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border">
               <th className="text-left font-display font-semibold px-3 py-3 min-w-[220px]">Критерий</th>
-              <th className="text-left font-display font-semibold px-3 py-3">kj (оценка)</th>
-              <th className="text-left font-display font-semibold px-3 py-3">εj (эталон)</th>
-              <th className="text-left font-display font-semibold px-3 py-3">kj / εj</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[90px]">kj (оценка)</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[90px]">εj (эталон)</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[80px]">kj / εj</th>
               {!readOnly && <th className="px-3 py-3" />}
             </tr>
           </thead>
@@ -243,6 +245,7 @@ const CustomerSatisfactionBuilder = ({ value, onChange, readOnly }: Props) => {
             ))}
           </tbody>
         </table>
+      </TableScrollArea>
       </div>
 
       <div className={`rounded-2xl border p-5 ${satisfied ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-rose-500/30 bg-rose-500/5'}`}>

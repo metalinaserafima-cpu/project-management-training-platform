@@ -1,6 +1,7 @@
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import TableScrollArea from './TableScrollArea';
 
 type RaciRole = 'R' | 'A' | 'C' | 'I' | '';
 
@@ -97,7 +98,12 @@ const RaciMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-border bg-secondary/20 overflow-x-auto p-1">
+      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+        <Icon name="MoveHorizontal" size={13} />
+        Используйте стрелки или прокрутите таблицу вправо, чтобы увидеть всех участников
+      </p>
+      <div className="rounded-2xl border border-border bg-secondary/20 p-1">
+      <TableScrollArea>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border">
@@ -151,6 +157,7 @@ const RaciMatrixBuilder = ({ value, onChange, readOnly }: Props) => {
             ))}
           </tbody>
         </table>
+      </TableScrollArea>
       </div>
 
       <div className="flex items-center gap-4 flex-wrap text-[11px] text-muted-foreground px-1">
