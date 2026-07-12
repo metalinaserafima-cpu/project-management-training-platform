@@ -1,7 +1,10 @@
+import { useRef, useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { uploadImageApi } from '@/lib/api';
+import { toast } from 'sonner';
 
 interface Persona {
   id: string;
@@ -9,9 +12,12 @@ interface Persona {
   role: string;
   age: string;
   segment: string;
+  description: string;
+  currentTools: string;
   goals: string;
   painPoints: string;
   avatarColor: string;
+  avatarUrl: string;
 }
 
 export interface PersonaData {
@@ -26,9 +32,12 @@ const emptyPersona = (i: number): Persona => ({
   role: '',
   age: '',
   segment: '',
+  description: '',
+  currentTools: '',
   goals: '',
   painPoints: '',
   avatarColor: AVATAR_COLORS[i % AVATAR_COLORS.length],
+  avatarUrl: '',
 });
 
 const defaultData = (): PersonaData => ({ personas: [emptyPersona(0)] });
@@ -41,6 +50,8 @@ interface Props {
 
 const PersonaBuilder = ({ value, onChange, readOnly }: Props) => {
   const data = value && value.personas?.length ? value : defaultData();
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const update = (id: string, key: keyof Persona, text: string) => {
     onChange({ personas: data.personas.map((p) => (p.id === id ? { ...p, [key]: text } : p)) });
@@ -49,13 +60,64 @@ const PersonaBuilder = ({ value, onChange, readOnly }: Props) => {
   const addPersona = () => onChange({ personas: [...data.personas, emptyPersona(data.personas.length)] });
   const removePersona = (id: string) => onChange({ personas: data.personas.filter((p) => p.id !== id) });
 
+  const handleFileSelect = async (id: string, file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Выберите файл изображения');
+      return;
+    }
+    setUploadingId(id);
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const { url } = await uploadImageApi.upload(base64, file.type);
+      update(id, 'avatarUrl', url);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Не удалось загрузить изображение');
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {data.personas.map((p) => (
         <div key={p.id} className="rounded-2xl border border-border bg-secondary/20 p-5">
           <div className="flex items-start gap-4 mb-4">
-            <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${p.avatarColor} flex items-center justify-center shrink-0`}>
-              <Icon name="User" size={26} className="text-white" />
+            <div className="relative shrink-0 group">
+              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${p.avatarColor} flex items-center justify-center overflow-hidden`}>
+                {p.avatarUrl ? (
+                  <img src={p.avatarUrl} alt={p.name || 'Персона'} className="w-full h-full object-cover" />
+                ) : (
+                  <Icon name="User" size={26} className="text-white" />
+                )}
+              </div>
+              {!readOnly && (
+                <>
+                  <input
+                    ref={(el) => (fileInputs.current[p.id] = el)}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleFileSelect(p.id, e.target.files?.[0])}
+                  />
+                  <button
+                    onClick={() => fileInputs.current[p.id]?.click()}
+                    disabled={uploadingId === p.id}
+                    className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-card border border-border flex items-center justify-center hover:border-primary/50"
+                  >
+                    {uploadingId === p.id ? (
+                      <Icon name="Loader2" size={11} className="animate-spin" />
+                    ) : (
+                      <Icon name="Camera" size={11} />
+                    )}
+                  </button>
+                </>
+              )}
             </div>
             <div className="flex-1 grid grid-cols-2 gap-2.5">
               <Input
@@ -93,6 +155,33 @@ const PersonaBuilder = ({ value, onChange, readOnly }: Props) => {
               </button>
             )}
           </div>
+
+          <div className="mb-3">
+            <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1.5">
+              <Icon name="FileText" size={12} /> Описание персоны
+            </label>
+            <Textarea
+              value={p.description}
+              onChange={(e) => update(p.id, 'description', e.target.value)}
+              readOnly={readOnly}
+              placeholder="Краткая история и контекст: кто этот человек, чем занимается, как принимает решения"
+              className="min-h-[60px] text-sm bg-card/60 border-border resize-none"
+            />
+          </div>
+
+          <div className="mb-3">
+            <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1.5">
+              <Icon name="Wrench" size={12} /> Чем пользуется сейчас
+            </label>
+            <Textarea
+              value={p.currentTools}
+              onChange={(e) => update(p.id, 'currentTools', e.target.value)}
+              readOnly={readOnly}
+              placeholder="Какие продукты, сервисы или способы решения задачи персона использует сейчас"
+              className="min-h-[60px] text-sm bg-card/60 border-border resize-none"
+            />
+          </div>
+
           <div className="grid sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1.5">

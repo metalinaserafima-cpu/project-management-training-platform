@@ -29,6 +29,11 @@ const constructorLabel: Record<string, string> = {
   stakeholders: 'Конструктор: карта стейкхолдеров',
   smart: 'Конструктор: SMART-цели',
   persona: 'Конструктор: карточки персон',
+  gantt: 'Конструктор: диаграмма Ганта',
+  risks: 'Конструктор: реестр рисков',
+  raci: 'Конструктор: матрица RACI',
+  kanban: 'Конструктор: Канбан-доска',
+  kpi: 'Конструктор: таблица KPI',
 };
 
 const Projects = () => {

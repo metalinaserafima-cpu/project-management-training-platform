@@ -2,6 +2,7 @@ import func2url from '../../backend/func2url.json';
 
 const AUTH_URL = func2url.auth;
 const SUBMISSIONS_URL = func2url.submissions;
+const UPLOAD_IMAGE_URL = func2url['upload-image'];
 
 export interface User {
   id: number;
@@ -76,4 +77,12 @@ export const submissionsApi = {
       body: JSON.stringify({ grade, teacher_comment: comment, status }),
     }),
   reset: (id: number) => request(`${SUBMISSIONS_URL}?id=${id}`, { method: 'DELETE' }),
+};
+
+export const uploadImageApi = {
+  upload: (base64Image: string, contentType: string) =>
+    request(UPLOAD_IMAGE_URL, {
+      method: 'POST',
+      body: JSON.stringify({ image: base64Image, content_type: contentType }),
+    }) as Promise<{ url: string }>,
 };

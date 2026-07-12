@@ -10,6 +10,11 @@ import BaccmBuilder from './BaccmBuilder';
 import StakeholderMatrixBuilder from './StakeholderMatrixBuilder';
 import SmartGoalsBuilder from './SmartGoalsBuilder';
 import PersonaBuilder from './PersonaBuilder';
+import GanttChartBuilder from './GanttChartBuilder';
+import RiskRegisterBuilder from './RiskRegisterBuilder';
+import RaciMatrixBuilder from './RaciMatrixBuilder';
+import KanbanBuilder from './KanbanBuilder';
+import KpiTableBuilder from './KpiTableBuilder';
 import { TaskType, courses } from '@/data/course';
 
 interface Props {
@@ -58,6 +63,16 @@ const SubmissionViewer = ({ submission, onOpenChange, isTeacher, onReviewed }: P
         return <SmartGoalsBuilder {...props} />;
       case 'persona':
         return <PersonaBuilder {...props} />;
+      case 'gantt':
+        return <GanttChartBuilder {...props} />;
+      case 'risks':
+        return <RiskRegisterBuilder {...props} />;
+      case 'raci':
+        return <RaciMatrixBuilder {...props} />;
+      case 'kanban':
+        return <KanbanBuilder {...props} />;
+      case 'kpi':
+        return <KpiTableBuilder {...props} />;
       default:
         return null;
     }

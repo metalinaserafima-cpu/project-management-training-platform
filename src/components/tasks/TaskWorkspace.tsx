@@ -21,6 +21,11 @@ import BaccmBuilder from './BaccmBuilder';
 import StakeholderMatrixBuilder from './StakeholderMatrixBuilder';
 import SmartGoalsBuilder from './SmartGoalsBuilder';
 import PersonaBuilder from './PersonaBuilder';
+import GanttChartBuilder from './GanttChartBuilder';
+import RiskRegisterBuilder from './RiskRegisterBuilder';
+import RaciMatrixBuilder from './RaciMatrixBuilder';
+import KanbanBuilder from './KanbanBuilder';
+import KpiTableBuilder from './KpiTableBuilder';
 
 interface Props {
   taskType: TaskType;
@@ -153,6 +158,16 @@ const TaskWorkspace = ({ taskType, taskKey, taskTitle, onSubmitted }: Props) => 
         return <SmartGoalsBuilder value={content as never} onChange={handleChange as never} readOnly={readOnly} />;
       case 'persona':
         return <PersonaBuilder value={content as never} onChange={handleChange as never} readOnly={readOnly} />;
+      case 'gantt':
+        return <GanttChartBuilder value={content as never} onChange={handleChange as never} readOnly={readOnly} />;
+      case 'risks':
+        return <RiskRegisterBuilder value={content as never} onChange={handleChange as never} readOnly={readOnly} />;
+      case 'raci':
+        return <RaciMatrixBuilder value={content as never} onChange={handleChange as never} readOnly={readOnly} />;
+      case 'kanban':
+        return <KanbanBuilder value={content as never} onChange={handleChange as never} readOnly={readOnly} />;
+      case 'kpi':
+        return <KpiTableBuilder value={content as never} onChange={handleChange as never} readOnly={readOnly} />;
       default:
         return null;
     }

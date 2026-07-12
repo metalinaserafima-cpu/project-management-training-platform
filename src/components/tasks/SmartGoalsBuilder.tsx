@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 
 interface Goal {
   id: string;
+  fullGoal: string;
   specific: string;
   measurable: string;
   achievable: string;
@@ -19,6 +20,7 @@ export interface SmartGoalsData {
 
 const emptyGoal = (): Goal => ({
   id: `g${Date.now()}`,
+  fullGoal: '',
   specific: '',
   measurable: '',
   achievable: '',
@@ -67,6 +69,18 @@ const SmartGoalsBuilder = ({ value, onChange, readOnly }: Props) => {
                 <Icon name="Trash2" size={15} />
               </button>
             )}
+          </div>
+          <div className="mb-3">
+            <label className="text-xs text-muted-foreground mb-1 flex items-center gap-1.5">
+              <Icon name="FileText" size={12} /> Полная формулировка цели
+            </label>
+            <Textarea
+              value={g.fullGoal}
+              onChange={(e) => updateGoal(g.id, 'fullGoal', e.target.value)}
+              readOnly={readOnly}
+              placeholder="Например: Повысить конверсию мобильного приложения на 15% до конца 3 квартала 2026 года за счёт улучшения онбординга"
+              className="min-h-[60px] text-sm bg-card/60 border-border resize-none"
+            />
           </div>
           <div className="grid sm:grid-cols-2 gap-3 mb-3">
             {fields.map((f) => (
