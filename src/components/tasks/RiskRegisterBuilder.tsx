@@ -75,18 +75,22 @@ const RiskRegisterBuilder = ({ value, onChange, readOnly }: Props) => {
 
   return (
     <div className="space-y-4">
+      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+        <Icon name="MoveHorizontal" size={13} />
+        В таблице 8 граф, включая «Владелец риска» — прокрутите её вправо, чтобы увидеть все графы
+      </p>
       <div className="rounded-2xl border border-border bg-secondary/20 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border">
-              <th className="text-left font-display font-semibold px-3 py-3 min-w-[140px]">Этап реализации проекта</th>
-              <th className="text-left font-display font-semibold px-3 py-3 min-w-[180px]">Описание риска</th>
-              <th className="text-left font-display font-semibold px-3 py-3 min-w-[180px]">Возможные последствия</th>
-              <th className="text-left font-display font-semibold px-3 py-3 min-w-[110px]">Ущерб</th>
-              <th className="text-left font-display font-semibold px-3 py-3 min-w-[110px]">Вероятность</th>
-              <th className="text-left font-display font-semibold px-3 py-3 min-w-[110px]">Уровень риска</th>
-              <th className="text-left font-display font-semibold px-3 py-3 min-w-[180px]">Мероприятия по снижению риска</th>
-              <th className="text-left font-display font-semibold px-3 py-3 min-w-[130px]">Владелец риска</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[110px]">Этап реализации проекта</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[160px]">Описание риска</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[160px]">Возможные последствия</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[95px]">Ущерб</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[95px]">Вероятность</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[100px]">Уровень риска</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[160px]">Мероприятия по снижению риска</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[130px] bg-primary/10">Владелец риска</th>
               {!readOnly && <th className="px-3 py-3" />}
             </tr>
           </thead>
@@ -124,8 +128,8 @@ const RiskRegisterBuilder = ({ value, onChange, readOnly }: Props) => {
                 <td className="px-3 py-2">
                   <Textarea value={r.measures} onChange={(e) => update(r.id, 'measures', e.target.value)} readOnly={readOnly} placeholder="Мероприятия по снижению" className="min-h-[52px] text-sm bg-card/60 border-border resize-none" />
                 </td>
-                <td className="px-3 py-2">
-                  <Input value={r.owner} onChange={(e) => update(r.id, 'owner', e.target.value)} readOnly={readOnly} placeholder="Владелец риска" className="h-9 text-sm bg-card/60 border-border" />
+                <td className="px-3 py-2 bg-primary/5">
+                  <Input value={r.owner} onChange={(e) => update(r.id, 'owner', e.target.value)} readOnly={readOnly} placeholder="ФИО / роль" className="h-9 text-sm bg-card/60 border-border" />
                 </td>
                 {!readOnly && (
                   <td className="px-3 py-2">

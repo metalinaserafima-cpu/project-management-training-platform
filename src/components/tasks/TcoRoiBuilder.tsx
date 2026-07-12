@@ -60,8 +60,15 @@ const CostSection = ({ title, icon, items, unitLabel, readOnly, onUpdate, onAdd,
           <Icon name={icon} size={15} />
           {title}
         </span>
-        <span className="text-sm font-display font-bold text-primary">{fmt(total)} ₽</span>
+        <span className="text-sm font-display font-bold text-primary">Итого: {fmt(total)} ₽</span>
       </div>
+
+      <div className="flex gap-2 mb-1.5 px-0.5">
+        <span className="flex-1 text-[11px] text-muted-foreground">Наименование статьи</span>
+        <span className="w-36 text-[11px] text-muted-foreground">Сумма, {unitLabel}</span>
+        {!readOnly && <span className="w-[26px]" />}
+      </div>
+
       <div className="space-y-2">
         {items.map((it) => (
           <div key={it.id} className="flex gap-2">
@@ -74,10 +81,11 @@ const CostSection = ({ title, icon, items, unitLabel, readOnly, onUpdate, onAdd,
             />
             <Input
               value={it.value}
-              onChange={(e) => onUpdate(it.id, 'value', e.target.value)}
+              onChange={(e) => onUpdate(it.id, 'value', e.target.value.replace(/[^\d.,\s]/g, ''))}
               readOnly={readOnly}
-              placeholder={unitLabel}
-              className="h-9 text-sm bg-card/60 border-border w-36"
+              placeholder="Введите сумму"
+              inputMode="decimal"
+              className="h-9 text-sm bg-card/60 border-primary/30 w-36 font-medium"
             />
             {!readOnly && (
               <button onClick={() => onRemove(it.id)} className="text-muted-foreground hover:text-destructive shrink-0">
@@ -122,6 +130,10 @@ const TcoRoiBuilder = ({ value, onChange, readOnly }: Props) => {
 
   return (
     <div className="space-y-4">
+      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+        <Icon name="Info" size={13} />
+        Впишите суммы в поля «Введите сумму» по каждой статье — TCO и ROI рассчитаются автоматически
+      </p>
       <div className="flex items-center gap-3">
         <label className="text-xs text-muted-foreground shrink-0">Горизонт расчёта (лет)</label>
         <Input
@@ -136,7 +148,7 @@ const TcoRoiBuilder = ({ value, onChange, readOnly }: Props) => {
         title="Первоначальные инвестиции (прямые затраты)"
         icon="Landmark"
         items={data.initialCosts}
-        unitLabel="Стоимость, ₽"
+        unitLabel="₽"
         readOnly={readOnly}
         onUpdate={(id, k, v) => updateSection('initialCosts', id, k, v)}
         onAdd={() => addToSection('initialCosts')}

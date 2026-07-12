@@ -60,6 +60,10 @@ const KpiTableBuilder = ({ value, onChange, readOnly }: Props) => {
 
   return (
     <div className="space-y-4">
+      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+        <Icon name="Info" size={13} />
+        KPI1 (производительность) и KPI2 (качество) рассчитываются автоматически для каждого работника по мере заполнения данных
+      </p>
       <div className="rounded-2xl border border-border bg-secondary/20 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -68,8 +72,8 @@ const KpiTableBuilder = ({ value, onChange, readOnly }: Props) => {
               <th className="text-left font-display font-semibold px-3 py-3 min-w-[110px]">Кол-во выполненных задач</th>
               <th className="text-left font-display font-semibold px-3 py-3 min-w-[110px]">Среднее время на задачу, ч</th>
               <th className="text-left font-display font-semibold px-3 py-3 min-w-[100px]">Критических ошибок</th>
-              <th className="text-left font-display font-semibold px-3 py-3 min-w-[80px]">KPI1</th>
-              <th className="text-left font-display font-semibold px-3 py-3 min-w-[80px]">KPI2</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[110px]">Производительность (KPI1)</th>
+              <th className="text-left font-display font-semibold px-3 py-3 min-w-[100px]">Качество (KPI2)</th>
               {!readOnly && <th className="px-3 py-3" />}
             </tr>
           </thead>
@@ -88,10 +92,10 @@ const KpiTableBuilder = ({ value, onChange, readOnly }: Props) => {
                 <td className="px-3 py-2">
                   <Input value={w.criticalErrors} onChange={(e) => update(w.id, 'criticalErrors', e.target.value)} readOnly={readOnly} placeholder="0" className="h-9 text-sm bg-card/60 border-border" />
                 </td>
-                <td className="px-3 py-2">
+                <td className="px-3 py-2 bg-primary/5">
                   <span className="font-display font-semibold text-primary">{kpi1(w)}</span>
                 </td>
-                <td className="px-3 py-2">
+                <td className="px-3 py-2 bg-primary/5">
                   <span className="font-display font-semibold text-primary">{kpi2(w)}</span>
                 </td>
                 {!readOnly && (

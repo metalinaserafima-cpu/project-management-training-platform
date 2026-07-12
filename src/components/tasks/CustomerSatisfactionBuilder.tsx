@@ -96,14 +96,14 @@ const CustomerSatisfactionBuilder = ({ value, onChange, readOnly }: Props) => {
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-border bg-secondary/20 p-4">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <span className="font-display font-semibold text-sm flex items-center gap-2">
             <Icon name="Target" size={15} /> Таблица 1. Эталонная (целевая) оценка
           </span>
           {!readOnly && (
-            <button onClick={() => addEntity('services', 'Продукт')} className="text-xs text-primary flex items-center gap-1 hover:underline">
-              <Icon name="Plus" size={13} /> Услуга/продукт
-            </button>
+            <Button size="sm" variant="outline" onClick={() => addEntity('services', 'Продукт')} className="h-8 text-xs rounded-lg border-dashed">
+              <Icon name="Plus" size={13} className="mr-1" /> Добавить услугу/продукт
+            </Button>
           )}
         </div>
         <div className="overflow-x-auto">
@@ -145,17 +145,22 @@ const CustomerSatisfactionBuilder = ({ value, onChange, readOnly }: Props) => {
             </tbody>
           </table>
         </div>
+        {!readOnly && (
+          <Button variant="ghost" size="sm" onClick={() => addEntity('services', 'Продукт')} className="w-full mt-3 h-8 text-xs border border-dashed border-border rounded-lg">
+            <Icon name="Plus" size={13} className="mr-1" /> Ещё услуга/продукт
+          </Button>
+        )}
       </div>
 
       <div className="rounded-2xl border border-border bg-secondary/20 p-4">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <span className="font-display font-semibold text-sm flex items-center gap-2">
             <Icon name="ClipboardCheck" size={15} /> Таблица 2. Лист оценки одногруппников
           </span>
           {!readOnly && (
-            <button onClick={() => addEntity('respondents', 'Респондент')} className="text-xs text-primary flex items-center gap-1 hover:underline">
-              <Icon name="Plus" size={13} /> Респондент
-            </button>
+            <Button size="sm" variant="outline" onClick={() => addEntity('respondents', 'Респондент')} className="h-8 text-xs rounded-lg border-dashed">
+              <Icon name="Plus" size={13} className="mr-1" /> Добавить респондента
+            </Button>
           )}
         </div>
         <div className="overflow-x-auto">
@@ -198,9 +203,14 @@ const CustomerSatisfactionBuilder = ({ value, onChange, readOnly }: Props) => {
           </table>
         </div>
         {!readOnly && (
-          <Button variant="ghost" size="sm" onClick={addCriterion} className="w-full mt-3 h-8 text-xs border border-dashed border-border rounded-lg">
-            <Icon name="Plus" size={13} className="mr-1" /> Добавить критерий
-          </Button>
+          <div className="grid sm:grid-cols-2 gap-2 mt-3">
+            <Button variant="ghost" size="sm" onClick={() => addEntity('respondents', 'Респондент')} className="h-8 text-xs border border-dashed border-border rounded-lg">
+              <Icon name="Plus" size={13} className="mr-1" /> Ещё респондент
+            </Button>
+            <Button variant="ghost" size="sm" onClick={addCriterion} className="h-8 text-xs border border-dashed border-border rounded-lg">
+              <Icon name="Plus" size={13} className="mr-1" /> Добавить критерий
+            </Button>
+          </div>
         )}
       </div>
 
