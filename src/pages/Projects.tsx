@@ -22,7 +22,7 @@ const filters = [
 ];
 
 const constructorLabel: Record<string, string> = {
-  mindmap: 'Конструктор: интеллект-карта',
+  mindmap: 'Конструктор: 3 метода ТРИЗ',
   baccm: 'Конструктор: форма BACCM',
   stakeholders: 'Конструктор: матрица стейкхолдеров',
   smart: 'Конструктор: SMART-цели',
