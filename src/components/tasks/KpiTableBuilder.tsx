@@ -110,12 +110,7 @@ const KpiTableBuilder = ({ value, onChange, readOnly }: Props) => {
               <td className="px-3 py-3">{totalTasks || '—'}</td>
               <td className="px-3 py-3">{totalTime || '—'}</td>
               <td className="px-3 py-3">{totalErrors || '—'}</td>
-              <td className="px-3 py-3 text-gradient font-display" colSpan={readOnly ? 2 : 1}>KPI3: {kpi3}</td>
-              {!readOnly && <td />}
-            </tr>
-            <tr className="bg-card/40 font-semibold">
-              <td className="px-3 py-3" colSpan={4}>Общий уровень качества команды</td>
-              <td className="px-3 py-3 text-gradient font-display" colSpan={readOnly ? 2 : 1}>KPI4: {kpi4}</td>
+              <td className="px-3 py-3" colSpan={readOnly ? 2 : 1} />
               {!readOnly && <td />}
             </tr>
           </tfoot>
@@ -127,6 +122,23 @@ const KpiTableBuilder = ({ value, onChange, readOnly }: Props) => {
           <Icon name="Plus" size={15} className="mr-1.5" /> Добавить работника
         </Button>
       )}
+
+      <div className="grid sm:grid-cols-2 gap-3">
+        <div className="rounded-2xl border border-border bg-secondary/20 p-4">
+          <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1.5">
+            <Icon name="Gauge" size={12} /> Общая производительность команды
+          </div>
+          <div className="font-display font-extrabold text-2xl text-gradient">KPI3 = {kpi3}</div>
+          <div className="text-[11px] text-muted-foreground mt-1">Общее кол-во задач / общее время на их выполнение</div>
+        </div>
+        <div className="rounded-2xl border border-border bg-secondary/20 p-4">
+          <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1.5">
+            <Icon name="ShieldCheck" size={12} /> Общий уровень качества команды
+          </div>
+          <div className="font-display font-extrabold text-2xl text-gradient">KPI4 = {kpi4}</div>
+          <div className="text-[11px] text-muted-foreground mt-1">Доля задач без критических ошибок от общего числа задач</div>
+        </div>
+      </div>
 
       <div className="rounded-2xl border border-border bg-secondary/20 p-4">
         <label className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1.5">

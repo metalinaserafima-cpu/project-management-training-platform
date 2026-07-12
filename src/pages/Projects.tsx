@@ -34,6 +34,8 @@ const constructorLabel: Record<string, string> = {
   raci: 'Конструктор: матрица RACI',
   kanban: 'Конструктор: Канбан-доска',
   kpi: 'Конструктор: таблица KPI',
+  tcoroi: 'Конструктор: TCO и ROI',
+  csi: 'Конструктор: удовлетворённость потребителя',
 };
 
 const Projects = () => {

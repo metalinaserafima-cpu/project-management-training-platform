@@ -41,6 +41,7 @@ const KanbanBuilder = ({ value, onChange, readOnly }: Props) => {
   const data = value && value.columns?.length ? value : defaultData();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [dragCard, setDragCard] = useState<{ cardId: string; fromKey: ColumnKey } | null>(null);
+  const [dragOverKey, setDragOverKey] = useState<ColumnKey | null>(null);
 
   const getColumn = (key: ColumnKey) => data.columns.find((c) => c.key === key);
 
@@ -78,13 +79,19 @@ const KanbanBuilder = ({ value, onChange, readOnly }: Props) => {
         return (
           <div
             key={meta.key}
-            className={`rounded-2xl border border-border border-t-2 ${meta.color} bg-secondary/20 p-3 flex flex-col min-h-[220px]`}
-            onDragOver={(e) => !readOnly && e.preventDefault()}
+            className={`rounded-2xl border border-t-2 ${meta.color} bg-secondary/20 p-3 flex flex-col min-h-[220px] transition-colors ${dragOverKey === meta.key ? 'border-primary/60 bg-primary/5' : 'border-border'}`}
+            onDragOver={(e) => {
+              if (readOnly) return;
+              e.preventDefault();
+              if (dragOverKey !== meta.key) setDragOverKey(meta.key);
+            }}
+            onDragLeave={() => setDragOverKey((k) => (k === meta.key ? null : k))}
             onDrop={() => {
               if (!readOnly && dragCard) {
                 moveCard(dragCard.cardId, dragCard.fromKey, meta.key);
                 setDragCard(null);
               }
+              setDragOverKey(null);
             }}
           >
             <div className="flex items-center justify-between mb-3">
@@ -97,7 +104,11 @@ const KanbanBuilder = ({ value, onChange, readOnly }: Props) => {
                   key={card.id}
                   draggable={!readOnly}
                   onDragStart={() => setDragCard({ cardId: card.id, fromKey: meta.key })}
-                  className={`bg-card border border-border rounded-xl px-3 py-2 text-xs flex items-start justify-between gap-2 group ${!readOnly ? 'cursor-grab active:cursor-grabbing' : ''}`}
+                  onDragEnd={() => {
+                    setDragCard(null);
+                    setDragOverKey(null);
+                  }}
+                  className={`bg-card border border-border rounded-xl px-3 py-2 text-xs flex items-start justify-between gap-2 group transition-opacity ${!readOnly ? 'cursor-grab active:cursor-grabbing' : ''} ${dragCard?.cardId === card.id ? 'opacity-40' : ''}`}
                 >
                   <span className="leading-snug">{card.text}</span>
                   {!readOnly && (

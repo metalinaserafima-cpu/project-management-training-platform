@@ -15,6 +15,8 @@ import RiskRegisterBuilder from './RiskRegisterBuilder';
 import RaciMatrixBuilder from './RaciMatrixBuilder';
 import KanbanBuilder from './KanbanBuilder';
 import KpiTableBuilder from './KpiTableBuilder';
+import TcoRoiBuilder from './TcoRoiBuilder';
+import CustomerSatisfactionBuilder from './CustomerSatisfactionBuilder';
 import { TaskType, courses } from '@/data/course';
 
 interface Props {
@@ -73,6 +75,10 @@ const SubmissionViewer = ({ submission, onOpenChange, isTeacher, onReviewed }: P
         return <KanbanBuilder {...props} />;
       case 'kpi':
         return <KpiTableBuilder {...props} />;
+      case 'tcoroi':
+        return <TcoRoiBuilder {...props} />;
+      case 'csi':
+        return <CustomerSatisfactionBuilder {...props} />;
       default:
         return null;
     }

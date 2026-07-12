@@ -26,6 +26,8 @@ import RiskRegisterBuilder from './RiskRegisterBuilder';
 import RaciMatrixBuilder from './RaciMatrixBuilder';
 import KanbanBuilder from './KanbanBuilder';
 import KpiTableBuilder from './KpiTableBuilder';
+import TcoRoiBuilder from './TcoRoiBuilder';
+import CustomerSatisfactionBuilder from './CustomerSatisfactionBuilder';
 
 interface Props {
   taskType: TaskType;
@@ -168,6 +170,10 @@ const TaskWorkspace = ({ taskType, taskKey, taskTitle, onSubmitted }: Props) => 
         return <KanbanBuilder value={content as never} onChange={handleChange as never} readOnly={readOnly} />;
       case 'kpi':
         return <KpiTableBuilder value={content as never} onChange={handleChange as never} readOnly={readOnly} />;
+      case 'tcoroi':
+        return <TcoRoiBuilder value={content as never} onChange={handleChange as never} readOnly={readOnly} />;
+      case 'csi':
+        return <CustomerSatisfactionBuilder value={content as never} onChange={handleChange as never} readOnly={readOnly} />;
       default:
         return null;
     }
