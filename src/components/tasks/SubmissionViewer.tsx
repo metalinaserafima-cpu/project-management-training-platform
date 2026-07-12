@@ -10,8 +10,7 @@ import BaccmBuilder from './BaccmBuilder';
 import StakeholderMatrixBuilder from './StakeholderMatrixBuilder';
 import SmartGoalsBuilder from './SmartGoalsBuilder';
 import PersonaBuilder from './PersonaBuilder';
-import { TaskType } from '@/data/course';
-import { initiationCourse } from '@/data/course';
+import { TaskType, courses } from '@/data/course';
 
 interface Props {
   submission: Submission | null;
@@ -23,8 +22,11 @@ interface Props {
 const noop = () => {};
 
 const getTaskType = (taskKey: string): TaskType => {
-  const lesson = initiationCourse.lessons.find((l) => l.taskKey === taskKey);
-  return lesson?.taskType || 'mindmap';
+  for (const course of courses) {
+    const lesson = course.lessons.find((l) => l.taskKey === taskKey);
+    if (lesson) return lesson.taskType;
+  }
+  return 'mindmap';
 };
 
 const statusLabel: Record<string, { label: string; color: string; icon: string }> = {

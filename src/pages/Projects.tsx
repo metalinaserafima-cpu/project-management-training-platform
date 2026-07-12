@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { submissionsApi, Submission } from '@/lib/api';
 import SubmissionViewer from '@/components/tasks/SubmissionViewer';
+import CoursePlayer from '@/components/landing/CoursePlayer';
+import { courses, Course } from '@/data/course';
 
 const statusMeta: Record<string, { label: string; color: string; icon: string }> = {
   in_progress: { label: 'В процессе', color: 'text-amber-300 bg-amber-400/15', icon: 'Pencil' },
@@ -25,6 +27,7 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [selected, setSelected] = useState<Submission | null>(null);
+  const [openCourse, setOpenCourse] = useState<Course | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -41,6 +44,8 @@ const Projects = () => {
 
   const filtered = filter === 'all' ? submissions : submissions.filter((s) => s.status === filter);
   const isTeacher = user?.role === 'teacher';
+
+  const submittedTaskKeys = new Set(submissions.map((s) => s.task_key));
 
   return (
     <div className="min-h-screen bg-background text-foreground grid-bg">
@@ -72,10 +77,54 @@ const Projects = () => {
           </h1>
           <p className="text-muted-foreground mt-2">
             {isTeacher
-              ? 'Здесь появляются все выполненные задания студентов по курсу'
-              : 'Здесь собраны все ваши работы по заданиям курса'}
+              ? 'Здесь появляются все выполненные задания студентов по курсам'
+              : 'Выполняйте задания курсов прямо здесь и следите за статусом проверки'}
           </p>
         </div>
+
+        {!isTeacher && (
+          <div className="mb-14">
+            <h2 className="font-display font-bold text-xl mb-5 flex items-center gap-2">
+              <Icon name="PenTool" size={20} className="text-primary" />
+              Выполнить задание
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {courses.map((c) => {
+                const taskKey = c.lessons[0].taskKey;
+                const done = submittedTaskKeys.has(taskKey);
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setOpenCourse(c)}
+                    className="text-left glass rounded-2xl p-5 hover:border-primary/40 hover:-translate-y-1 transition-all"
+                  >
+                    <div className="flex items-start justify-between mb-4 gap-3">
+                      <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${c.color} flex items-center justify-center shrink-0`}>
+                        <Icon name={c.icon} size={20} className="text-white" />
+                      </div>
+                      {done && (
+                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0 text-emerald-300 bg-emerald-400/15">
+                          <Icon name="Check" size={11} />
+                          Начато
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="font-display font-bold text-base mb-1.5 leading-snug">{c.title}</h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{c.description}</p>
+                    <span className="text-xs text-primary font-medium flex items-center gap-1">
+                      Открыть конструктор <Icon name="ArrowRight" size={12} />
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <h2 className="font-display font-bold text-xl mb-5 flex items-center gap-2">
+          <Icon name="FolderKanban" size={20} className="text-primary" />
+          {isTeacher ? 'Все сданные работы' : 'Мои работы'}
+        </h2>
 
         <div className="flex flex-wrap gap-2 mb-8">
           {filters.map((f) => (
@@ -101,11 +150,6 @@ const Projects = () => {
             <p className="text-muted-foreground">
               {isTeacher ? 'Пока никто не сдал работы' : 'Вы ещё не начали ни одного задания'}
             </p>
-            {!isTeacher && (
-              <Link to="/">
-                <Button className="mt-5 bg-gradient-brand border-0 rounded-xl">Перейти к курсам</Button>
-              </Link>
-            )}
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -148,6 +192,16 @@ const Projects = () => {
         onOpenChange={(v) => !v && setSelected(null)}
         isTeacher={isTeacher}
         onReviewed={load}
+      />
+
+      <CoursePlayer
+        course={openCourse}
+        onOpenChange={(v) => {
+          if (!v) {
+            setOpenCourse(null);
+            load();
+          }
+        }}
       />
     </div>
   );
