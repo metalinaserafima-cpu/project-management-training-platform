@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { submissionsApi, Submission } from '@/lib/api';
 import SubmissionViewer from '@/components/tasks/SubmissionViewer';
-import CoursePlayer from '@/components/landing/CoursePlayer';
+import TaskConstructorModal from '@/components/tasks/TaskConstructorModal';
 import { courses, Course } from '@/data/course';
 
 const statusMeta: Record<string, { label: string; color: string; icon: string }> = {
@@ -20,6 +20,14 @@ const filters = [
   { key: 'reviewed', label: 'Проверено' },
   { key: 'in_progress', label: 'В процессе' },
 ];
+
+const constructorLabel: Record<string, string> = {
+  mindmap: 'Конструктор: интеллект-карта',
+  baccm: 'Конструктор: форма BACCM',
+  stakeholders: 'Конструктор: матрица стейкхолдеров',
+  smart: 'Конструктор: SMART-цели',
+  persona: 'Конструктор: карточки персон',
+};
 
 const Projects = () => {
   const { user } = useAuth();
@@ -111,9 +119,13 @@ const Projects = () => {
                     </div>
                     <h3 className="font-display font-bold text-base mb-1.5 leading-snug">{c.title}</h3>
                     <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{c.description}</p>
-                    <span className="text-xs text-primary font-medium flex items-center gap-1">
-                      Открыть конструктор <Icon name="ArrowRight" size={12} />
-                    </span>
+                    <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
+                      <span className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                        <Icon name="Wrench" size={11} />
+                        {constructorLabel[c.lessons[0].taskType]}
+                      </span>
+                      <Icon name="ArrowRight" size={13} className="text-primary shrink-0" />
+                    </div>
                   </button>
                 );
               })}
@@ -194,14 +206,10 @@ const Projects = () => {
         onReviewed={load}
       />
 
-      <CoursePlayer
+      <TaskConstructorModal
         course={openCourse}
-        onOpenChange={(v) => {
-          if (!v) {
-            setOpenCourse(null);
-            load();
-          }
-        }}
+        onOpenChange={(v) => !v && setOpenCourse(null)}
+        onSubmitted={load}
       />
     </div>
   );
