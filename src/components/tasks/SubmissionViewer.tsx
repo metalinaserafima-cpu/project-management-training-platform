@@ -102,8 +102,8 @@ const SubmissionViewer = ({ submission, onOpenChange, isTeacher, onReviewed }: P
 
   return (
     <Dialog open={!!submission} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto bg-card border-border rounded-3xl p-0">
-        <div className="p-6 md:p-8">
+      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-card border-border rounded-3xl p-0 min-w-0">
+        <div className="p-6 md:p-8 min-w-0">
           <div className="flex items-start justify-between mb-6 gap-4">
             <div>
               <h2 className="font-display font-extrabold text-2xl mb-1">{submission.task_title}</h2>

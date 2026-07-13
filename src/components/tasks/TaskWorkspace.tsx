@@ -181,7 +181,7 @@ const TaskWorkspace = ({ taskType, taskKey, taskTitle, onSubmitted }: Props) => 
   };
 
   return (
-    <div>
+    <div className="min-w-0">
       {submissionStatus === 'needs_revision' && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 mb-5">
           <div className="font-display font-semibold text-sm mb-1.5 flex items-center gap-2 text-amber-300">
