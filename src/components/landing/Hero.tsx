@@ -20,11 +20,6 @@ const Hero = () => {
       <div className="container relative">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="animate-fade-up">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-sm font-medium mb-7">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-              Обучение с игровой механикой
-            </div>
-
             <h1 className="font-display font-black text-5xl md:text-6xl lg:text-7xl leading-[1.05] tracking-tight mb-6">
               Прокачай навык
               <br />

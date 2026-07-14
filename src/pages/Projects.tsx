@@ -70,10 +70,10 @@ const Projects = () => {
         <div className="container flex items-center justify-between py-5">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-gradient-brand flex items-center justify-center glow">
-              <Icon name="Zap" size={20} className="text-white" />
+              <Icon name="Puzzle" size={20} className="text-white" />
             </div>
             <span className="font-display font-extrabold text-xl">
-              Pro<span className="text-gradient">Level</span>
+              Pro<span className="text-gradient">Puzzle</span>
             </span>
           </Link>
           <div className="flex items-center gap-2">

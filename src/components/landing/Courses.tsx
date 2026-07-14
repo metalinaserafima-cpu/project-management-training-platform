@@ -4,12 +4,8 @@ import { Button } from '@/components/ui/button';
 import CoursePlayer from '@/components/landing/CoursePlayer';
 import { courses, Course } from '@/data/course';
 
-const categories = ['Все', 'Основы', 'Лидерство', 'Инструменты'];
-
 const Courses = () => {
-  const [active, setActive] = useState('Все');
   const [openCourse, setOpenCourse] = useState<Course | null>(null);
-  const filtered = active === 'Все' ? courses : courses.filter((c) => c.cat === active);
 
   return (
     <section id="courses" className="py-24 relative">
@@ -21,29 +17,13 @@ const Courses = () => {
               Курсы, которые <span className="text-gradient">качают навык</span>
             </h2>
             <p className="text-muted-foreground mt-3">
-              5 практических курсов по запуску проекта — от идеи до целевой аудитории
+              12 практических курсов по запуску проекта — от идеи до оценки удовлетворенности потребителя
             </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-10">
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => setActive(c)}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
-                active === c
-                  ? 'bg-gradient-brand text-white glow'
-                  : 'glass text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((c) => (
+          {courses.map((c) => (
             <div
               key={c.id}
               className="group glass rounded-3xl p-6 border-primary/40 glow transition-all duration-300 hover:-translate-y-1 flex flex-col"

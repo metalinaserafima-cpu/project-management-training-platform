@@ -49,10 +49,10 @@ const Auth = () => {
       <div className="relative w-full max-w-md">
         <Link to="/" className="flex items-center justify-center gap-2.5 mb-8">
           <div className="w-10 h-10 rounded-xl bg-gradient-brand flex items-center justify-center glow">
-            <Icon name="Zap" size={22} className="text-white" />
+            <Icon name="Puzzle" size={22} className="text-white" />
           </div>
           <span className="font-display font-extrabold text-2xl tracking-tight">
-            Pro<span className="text-gradient">Level</span>
+            Pro<span className="text-gradient">Puzzle</span>
           </span>
         </Link>
 

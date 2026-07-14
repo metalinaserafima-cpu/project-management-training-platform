@@ -47,6 +47,7 @@ const DesignDocEditor = () => {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewing, setReviewing] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [restarting, setRestarting] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sectionsRef = useRef<Record<string, string>>({});
 
@@ -132,6 +133,20 @@ const DesignDocEditor = () => {
       toast.error(err instanceof Error ? err.message : 'Не удалось очистить документ');
     } finally {
       setClearing(false);
+    }
+  };
+
+  const handleRestart = async () => {
+    if (!doc) return;
+    setRestarting(true);
+    try {
+      await designDocumentsApi.remove(doc.id);
+      toast.success('Документ удалён, можно начать зачётное задание заново');
+      navigate('/design-docs');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Не удалось удалить документ');
+    } finally {
+      setRestarting(false);
     }
   };
 
@@ -248,6 +263,30 @@ const DesignDocEditor = () => {
                     <AlertDialogCancel className="rounded-xl">Отмена</AlertDialogCancel>
                     <AlertDialogAction onClick={handleClear} className="bg-destructive hover:bg-destructive/90 rounded-xl">
                       {clearing ? <Icon name="Loader2" size={14} className="animate-spin" /> : 'Стереть и начать заново'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            {!isTeacher && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="sm" disabled={restarting} className="h-9 text-xs text-muted-foreground hover:text-destructive rounded-lg">
+                    {restarting ? <Icon name="Loader2" size={13} className="mr-1.5 animate-spin" /> : <Icon name="RotateCcw" size={13} className="mr-1.5" />}
+                    Начать заново
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-card border-border rounded-2xl">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Начать зачётное задание заново?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Этот документ будет полностью удалён без возможности восстановления. Вы сможете создать новый дизайн-документ с чистого листа.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="rounded-xl">Отмена</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleRestart} className="bg-destructive hover:bg-destructive/90 rounded-xl">
+                      {restarting ? <Icon name="Loader2" size={14} className="animate-spin" /> : 'Удалить и начать заново'}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
