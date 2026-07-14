@@ -9,6 +9,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Projects from "./pages/Projects";
+import DesignDocs from "./pages/DesignDocs";
+import DesignDocEditor from "./pages/DesignDocEditor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Projects />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/design-docs"
+              element={
+                <ProtectedRoute>
+                  <DesignDocs />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/design-docs/:id"
+              element={
+                <ProtectedRoute>
+                  <DesignDocEditor />
                 </ProtectedRoute>
               }
             />

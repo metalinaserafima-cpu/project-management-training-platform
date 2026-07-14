@@ -3,6 +3,7 @@ import func2url from '../../backend/func2url.json';
 const AUTH_URL = func2url.auth;
 const SUBMISSIONS_URL = func2url.submissions;
 const UPLOAD_IMAGE_URL = func2url['upload-image'];
+const DESIGN_DOCUMENTS_URL = func2url['design-documents'];
 
 export interface User {
   id: number;
@@ -85,4 +86,53 @@ export const uploadImageApi = {
       method: 'POST',
       body: JSON.stringify({ image: base64Image, content_type: contentType }),
     }) as Promise<{ url: string }>,
+};
+
+export type ProjectType = 'construction' | 'marketing' | 'event' | 'production' | 'social' | 'other';
+export type DesignDocStatus = 'in_progress' | 'submitted' | 'accepted' | 'needs_revision';
+
+export interface DesignDocument {
+  id: number;
+  user_id: number;
+  title: string;
+  project_type: ProjectType;
+  status: DesignDocStatus;
+  sections: Record<string, string>;
+  teacher_comment: string | null;
+  created_at: string;
+  updated_at: string;
+  submitted_at: string | null;
+  student_name?: string;
+  student_email?: string;
+}
+
+export const designDocumentsApi = {
+  list: () => request(DESIGN_DOCUMENTS_URL) as Promise<{ documents: DesignDocument[] }>,
+  get: (id: number) => request(`${DESIGN_DOCUMENTS_URL}?id=${id}`) as Promise<{ document: DesignDocument }>,
+  create: (title: string, projectType: ProjectType) =>
+    request(DESIGN_DOCUMENTS_URL, {
+      method: 'POST',
+      body: JSON.stringify({ title, project_type: projectType }),
+    }) as Promise<{ document: DesignDocument }>,
+  save: (id: number, sections: Record<string, string>, title?: string, projectType?: ProjectType) =>
+    request(`${DESIGN_DOCUMENTS_URL}?id=${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ sections, ...(title ? { title } : {}), ...(projectType ? { project_type: projectType } : {}) }),
+    }) as Promise<{ document: DesignDocument }>,
+  submit: (id: number, sections: Record<string, string>) =>
+    request(`${DESIGN_DOCUMENTS_URL}?id=${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ sections, status: 'submitted' }),
+    }) as Promise<{ document: DesignDocument }>,
+  accept: (id: number) =>
+    request(`${DESIGN_DOCUMENTS_URL}?id=${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ action: 'accept' }),
+    }) as Promise<{ document: DesignDocument }>,
+  requestRevision: (id: number, comment: string) =>
+    request(`${DESIGN_DOCUMENTS_URL}?id=${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ action: 'revise', teacher_comment: comment }),
+    }) as Promise<{ document: DesignDocument }>,
+  remove: (id: number) => request(`${DESIGN_DOCUMENTS_URL}?id=${id}`, { method: 'DELETE' }),
 };

@@ -74,6 +74,15 @@ const Header = () => {
               Проекты
             </button>
           )}
+          {user && (
+            <button
+              onClick={() => navigate('/design-docs')}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors flex items-center gap-1.5"
+            >
+              <Icon name="FileText" size={15} />
+              Зачётное задание
+            </button>
+          )}
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
@@ -99,6 +108,10 @@ const Header = () => {
                 <DropdownMenuItem onClick={() => navigate('/projects')} className="cursor-pointer">
                   <Icon name="FolderKanban" size={15} className="mr-2" />
                   {user.role === 'teacher' ? 'Работы студентов' : 'Мои проекты'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/design-docs')} className="cursor-pointer">
+                  <Icon name="FileText" size={15} className="mr-2" />
+                  Зачётное задание
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={logout} className="cursor-pointer text-destructive focus:text-destructive">
                   <Icon name="LogOut" size={15} className="mr-2" />
@@ -146,6 +159,13 @@ const Header = () => {
                 >
                   <Icon name="FolderKanban" size={16} />
                   {user.role === 'teacher' ? 'Работы студентов' : 'Мои проекты'}
+                </button>
+                <button
+                  onClick={() => { setOpen(false); navigate('/design-docs'); }}
+                  className="px-4 py-3 rounded-xl text-left font-medium hover:bg-secondary/60 transition-colors flex items-center gap-2"
+                >
+                  <Icon name="FileText" size={16} />
+                  Зачётное задание
                 </button>
                 <Button
                   variant="ghost"

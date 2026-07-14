@@ -76,11 +76,18 @@ const Projects = () => {
               Pro<span className="text-gradient">Level</span>
             </span>
           </Link>
-          <Link to="/">
-            <Button variant="ghost" className="text-muted-foreground">
-              <Icon name="ArrowLeft" size={16} className="mr-1.5" /> На главную
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/design-docs">
+              <Button variant="ghost" className="text-muted-foreground">
+                <Icon name="FileText" size={16} className="mr-1.5" /> Зачётное задание
+              </Button>
+            </Link>
+            <Link to="/">
+              <Button variant="ghost" className="text-muted-foreground">
+                <Icon name="ArrowLeft" size={16} className="mr-1.5" /> На главную
+              </Button>
+            </Link>
+          </div>
         </div>
       </header>
 
