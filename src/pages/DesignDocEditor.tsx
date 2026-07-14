@@ -46,6 +46,7 @@ const DesignDocEditor = () => {
   const [reviewComment, setReviewComment] = useState('');
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewing, setReviewing] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sectionsRef = useRef<Record<string, string>>({});
 
@@ -114,6 +115,23 @@ const DesignDocEditor = () => {
       toast.error(err instanceof Error ? err.message : 'Не удалось экспортировать документ');
     } finally {
       setExporting(false);
+    }
+  };
+
+  const handleClear = async () => {
+    if (!doc) return;
+    setClearing(true);
+    try {
+      const emptySections: Record<string, string> = {};
+      const { document } = await designDocumentsApi.save(doc.id, emptySections);
+      sectionsRef.current = emptySections;
+      setDoc(document);
+      setActiveSection(designDocSections[0].key);
+      toast.success('Все данные документа очищены, можно заполнить заново');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Не удалось очистить документ');
+    } finally {
+      setClearing(false);
     }
   };
 
@@ -211,6 +229,30 @@ const DesignDocEditor = () => {
               {exporting ? <Icon name="Loader2" size={13} className="mr-1.5 animate-spin" /> : <Icon name="Download" size={13} className="mr-1.5" />}
               Экспорт в .docx
             </Button>
+            {!isTeacher && !readOnly && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="sm" disabled={clearing} className="h-9 text-xs text-muted-foreground hover:text-destructive rounded-lg">
+                    {clearing ? <Icon name="Loader2" size={13} className="mr-1.5 animate-spin" /> : <Icon name="Eraser" size={13} className="mr-1.5" />}
+                    Очистить документ
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-card border-border rounded-2xl">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Стереть все данные документа?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Содержимое всех 13 разделов будет удалено без возможности восстановления. Название и тип проекта сохранятся — вы сможете заполнить разделы заново.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="rounded-xl">Отмена</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleClear} className="bg-destructive hover:bg-destructive/90 rounded-xl">
+                      {clearing ? <Icon name="Loader2" size={14} className="animate-spin" /> : 'Стереть и начать заново'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
             {!isTeacher && !readOnly && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>

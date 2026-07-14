@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { designDocumentsApi, DesignDocument } from '@/lib/api';
 import { designDocStatusMeta, projectTypeOptions, projectTypeLabels, ProjectType } from '@/data/designDocSections';
+import RequirementsDialog from '@/components/design-doc/RequirementsDialog';
 import { toast } from 'sonner';
 
 const filters = [
@@ -35,6 +36,7 @@ const DesignDocs = () => {
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newType, setNewType] = useState<ProjectType>('other');
+  const [requirementsOpen, setRequirementsOpen] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -110,6 +112,15 @@ const DesignDocs = () => {
                 ? 'Проверяйте дизайн-документы проектов, принимайте их или возвращайте на доработку'
                 : 'Создайте дизайн-документ проекта по универсальной структуре из 13 разделов'}
             </p>
+            {!isTeacher && (
+              <button
+                onClick={() => setRequirementsOpen(true)}
+                className="text-primary text-sm font-medium mt-2 flex items-center gap-1.5 hover:underline"
+              >
+                <Icon name="BookOpenCheck" size={15} />
+                Ознакомиться с требованиями к оформлению дизайн-документа
+              </button>
+            )}
           </div>
           {!isTeacher && (
             <Button onClick={() => setCreateOpen(true)} className="bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl shrink-0">
@@ -222,6 +233,8 @@ const DesignDocs = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <RequirementsDialog open={requirementsOpen} onOpenChange={setRequirementsOpen} />
     </div>
   );
 };
