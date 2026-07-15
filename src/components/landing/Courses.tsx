@@ -41,10 +41,13 @@ const Courses = () => {
               <p className="text-sm text-muted-foreground mb-4 flex-1">{c.description}</p>
 
               <div className="flex items-center gap-4 text-sm text-muted-foreground mb-5">
-                <span className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setOpenCourse(c)}
+                  className="flex items-center gap-1.5 hover:text-foreground transition-colors"
+                >
                   <Icon name="PlayCircle" size={16} />
                   {c.lessons.length} {c.lessons.length === 1 ? 'задание' : 'задания'}
-                </span>
+                </button>
                 <span className="flex items-center gap-1.5 text-amber-300">
                   <Icon name="Zap" size={16} />
                   +{c.lessons.reduce((s, l) => s + l.xp, 0)} XP

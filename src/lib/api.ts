@@ -184,6 +184,15 @@ export interface WeeklyLeader {
   avg_hours: number | null;
 }
 
+export interface StudentProgress {
+  user_id: number;
+  name: string;
+  full_name: string | null;
+  group_name: string | null;
+  total_completed_count: number;
+  total_started_count: number;
+}
+
 export interface StatsResponse {
   overview: {
     students_count: number;
@@ -192,6 +201,7 @@ export interface StatsResponse {
   };
   weekly_leaderboard: WeeklyLeader[];
   me: MyStats | null;
+  students_progress: StudentProgress[] | null;
 }
 
 export const statsApi = {

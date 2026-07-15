@@ -118,6 +118,37 @@ def handler(event: dict, context) -> dict:
         for r in weekly_rows[:5]
     ]
 
+    students_progress = None
+    if auth and auth.get('role') == 'teacher':
+        cur.execute("SELECT id, name, full_name, group_name FROM users WHERE role = 'student' ORDER BY name")
+        student_rows = cur.fetchall()
+
+        cur.execute("SELECT user_id, task_key, status FROM submissions")
+        all_submissions = cur.fetchall()
+        by_user: dict = {}
+        for r in all_submissions:
+            by_user.setdefault(r['user_id'], {})[r['task_key']] = r['status']
+
+        students_progress = []
+        for s in student_rows:
+            subs = by_user.get(s['id'], {})
+            total_completed = 0
+            total_started = 0
+            for task_key in COURSE_TASK_KEYS:
+                status = subs.get(task_key)
+                if status:
+                    total_started += 1
+                    if status == 'reviewed':
+                        total_completed += 1
+            students_progress.append({
+                'user_id': s['id'],
+                'name': s['name'],
+                'full_name': s['full_name'],
+                'group_name': s['group_name'],
+                'total_completed_count': total_completed,
+                'total_started_count': total_started,
+            })
+
     me = None
     if auth and auth.get('role') == 'student':
         uid = int(auth['uid'])
@@ -205,6 +236,7 @@ def handler(event: dict, context) -> dict:
         },
         'weekly_leaderboard': weekly_leaderboard,
         'me': me,
+        'students_progress': students_progress,
     })
 
 

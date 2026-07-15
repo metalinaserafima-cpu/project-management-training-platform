@@ -4,7 +4,7 @@ import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
-import { submissionsApi, Submission } from '@/lib/api';
+import { submissionsApi, statsApi, Submission, StudentProgress } from '@/lib/api';
 import SubmissionViewer from '@/components/tasks/SubmissionViewer';
 import TaskConstructorModal from '@/components/tasks/TaskConstructorModal';
 import { courses, Course } from '@/data/course';
@@ -50,6 +50,7 @@ const Projects = () => {
   const [fullName, setFullName] = useState('');
   const [groupName, setGroupName] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
+  const [studentsProgress, setStudentsProgress] = useState<StudentProgress[]>([]);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -63,6 +64,14 @@ const Projects = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (user?.role !== 'teacher') return;
+    statsApi
+      .get()
+      .then((data) => setStudentsProgress(data.students_progress || []))
+      .catch(() => {});
+  }, [user]);
 
   useEffect(() => {
     setFullName(user?.full_name || '');
@@ -131,6 +140,43 @@ const Projects = () => {
               : 'Выполняйте задания курсов прямо здесь и следите за статусом проверки'}
           </p>
         </div>
+
+        {isTeacher && (
+          <div className="glass rounded-2xl p-5 mb-10">
+            <h2 className="font-display font-bold text-base mb-4 flex items-center gap-2">
+              <Icon name="TrendingUp" size={18} className="text-primary" />
+              Прогресс студентов по курсам
+            </h2>
+            {studentsProgress.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Пока нет зарегистрированных студентов</p>
+            ) : (
+              <div className="space-y-3">
+                {studentsProgress.map((s) => {
+                  const percent = Math.round((s.total_completed_count / courses.length) * 100);
+                  return (
+                    <div key={s.user_id} className="flex items-center gap-4">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-brand flex items-center justify-center font-display font-bold text-sm shrink-0">
+                        {(s.full_name || s.name).charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className="text-sm font-medium truncate">
+                            {s.full_name || s.name}
+                            {s.group_name && <span className="text-muted-foreground font-normal"> · гр. {s.group_name}</span>}
+                          </span>
+                          <span className="text-xs text-muted-foreground shrink-0">{s.total_completed_count} / {courses.length}</span>
+                        </div>
+                        <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                          <div className="h-full rounded-full bg-gradient-brand" style={{ width: `${percent}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {!isTeacher && (
           <div className="glass rounded-2xl p-5 mb-10">
