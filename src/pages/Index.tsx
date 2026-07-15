@@ -3,7 +3,6 @@ import Hero from '@/components/landing/Hero';
 import Features from '@/components/landing/Features';
 import Courses from '@/components/landing/Courses';
 import Progress from '@/components/landing/Progress';
-import Leaderboard from '@/components/landing/Leaderboard';
 import CTA from '@/components/landing/CTA';
 import Footer from '@/components/landing/Footer';
 
@@ -16,7 +15,6 @@ const Index = () => {
         <Features />
         <Courses />
         <Progress />
-        <Leaderboard />
         <CTA />
       </main>
       <Footer />

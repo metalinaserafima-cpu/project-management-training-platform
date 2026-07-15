@@ -33,7 +33,7 @@ const CoursePlayer = ({ course, onOpenChange }: Props) => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-9 min-w-0">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-9 min-w-0 scrollbar-visible">
             <h2 className="font-display font-extrabold text-2xl md:text-3xl mb-1.5">{lesson.title}</h2>
             <p className="text-muted-foreground mb-6">{lesson.subtitle}</p>
 

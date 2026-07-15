@@ -120,14 +120,9 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <>
-              <Button variant="ghost" onClick={() => navigate('/auth')} className="text-muted-foreground hover:text-foreground">
-                Войти
-              </Button>
-              <Button onClick={() => navigate('/auth')} className="bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl">
-                Начать бесплатно
-              </Button>
-            </>
+            <Button onClick={() => navigate('/auth')} className="bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl">
+              Войти
+            </Button>
           )}
         </div>
 

@@ -34,7 +34,7 @@ const TaskConstructorModal = ({ course, onOpenChange, onSubmitted }: Props) => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto overflow-x-hidden p-5 md:p-7 min-w-0">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-5 md:p-7 min-w-0 scrollbar-visible">
             {!user ? (
               <div className="rounded-xl border border-dashed border-border p-8 text-center bg-card/40">
                 <Icon name="LogIn" size={28} className="mx-auto mb-3 text-muted-foreground" />
