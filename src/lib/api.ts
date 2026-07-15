@@ -4,6 +4,7 @@ const AUTH_URL = func2url.auth;
 const SUBMISSIONS_URL = func2url.submissions;
 const UPLOAD_IMAGE_URL = func2url['upload-image'];
 const DESIGN_DOCUMENTS_URL = func2url['design-documents'];
+const STATS_URL = func2url.stats;
 
 export interface User {
   id: number;
@@ -135,4 +136,49 @@ export const designDocumentsApi = {
       body: JSON.stringify({ action: 'revise', teacher_comment: comment }),
     }) as Promise<{ document: DesignDocument }>,
   remove: (id: number) => request(`${DESIGN_DOCUMENTS_URL}?id=${id}`, { method: 'DELETE' }),
+};
+
+export interface CourseProgress {
+  task_key: string;
+  status: 'not_started' | 'in_progress' | 'submitted' | 'reviewed' | 'needs_revision';
+  progress_percent: number;
+}
+
+export interface MyStats {
+  user_id: number;
+  name: string;
+  weekly_rank: number | null;
+  weekly_completed_count: number;
+  total_completed_count: number;
+  total_started_count: number;
+  total_submitted_count: number;
+  courses: CourseProgress[];
+  badges: {
+    first_start: boolean;
+    on_streak: boolean;
+    sprinter: boolean;
+    champion: boolean;
+    strategist: boolean;
+  };
+}
+
+export interface WeeklyLeader {
+  user_id: number;
+  name: string;
+  completed_count: number;
+  avg_hours: number | null;
+}
+
+export interface StatsResponse {
+  overview: {
+    students_count: number;
+    courses_count: number;
+    completed_projects: number;
+  };
+  weekly_leaderboard: WeeklyLeader[];
+  me: MyStats | null;
+}
+
+export const statsApi = {
+  get: () => request(STATS_URL) as Promise<StatsResponse>,
 };

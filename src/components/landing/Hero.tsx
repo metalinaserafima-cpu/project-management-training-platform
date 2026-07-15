@@ -1,13 +1,28 @@
+import { useEffect, useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
-
-const stats = [
-  { value: '48K+', label: 'учеников' },
-  { value: '120', label: 'курсов' },
-  { value: '96%', label: 'доходят до конца' },
-];
+import { statsApi } from '@/lib/api';
 
 const Hero = () => {
+  const [stats, setStats] = useState([
+    { value: '0', label: 'учеников' },
+    { value: '12', label: 'курсов' },
+    { value: '0', label: 'завершённых проектов' },
+  ]);
+
+  useEffect(() => {
+    statsApi
+      .get()
+      .then((data) => {
+        setStats([
+          { value: String(data.overview.students_count), label: 'учеников' },
+          { value: String(data.overview.courses_count), label: 'курсов' },
+          { value: String(data.overview.completed_projects), label: 'завершённых проектов' },
+        ]);
+      })
+      .catch(() => {});
+  }, []);
+
   const scrollTo = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 
@@ -69,7 +84,7 @@ const Hero = () => {
                   </div>
                   <div>
                     <div className="font-semibold">Анна Ветрова</div>
-                    <div className="text-xs text-muted-foreground">Project Manager · Ур. 12</div>
+                    <div className="text-xs text-muted-foreground">Project Manager</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-400/15 text-amber-300 text-sm font-semibold">
@@ -80,11 +95,11 @@ const Hero = () => {
 
               <div className="mb-6">
                 <div className="flex justify-between text-sm mb-2">
-                  <span className="text-muted-foreground">Прогресс уровня</span>
-                  <span className="font-semibold">2 340 / 3 000 XP</span>
+                  <span className="text-muted-foreground">Прогресс по курсам</span>
+                  <span className="font-semibold">9 / 12 курсов</span>
                 </div>
                 <div className="h-3 rounded-full bg-secondary overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-brand" style={{ width: '78%' }} />
+                  <div className="h-full rounded-full bg-gradient-brand" style={{ width: '75%' }} />
                 </div>
               </div>
 
@@ -104,7 +119,7 @@ const Hero = () => {
 
             <div className="absolute -top-6 -right-4 glass rounded-2xl px-4 py-3 flex items-center gap-2 animate-float">
               <Icon name="Award" size={20} className="text-cyan-300" />
-              <span className="text-sm font-semibold">+150 XP</span>
+              <span className="text-sm font-semibold">Задание принято</span>
             </div>
             <div className="absolute -bottom-5 -left-4 glass rounded-2xl px-4 py-3 flex items-center gap-2 animate-float" style={{ animationDelay: '2s' }}>
               <Icon name="CheckCircle2" size={20} className="text-emerald-300" />
