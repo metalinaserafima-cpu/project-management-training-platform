@@ -2,11 +2,13 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { submissionsApi, Submission } from '@/lib/api';
 import SubmissionViewer from '@/components/tasks/SubmissionViewer';
 import TaskConstructorModal from '@/components/tasks/TaskConstructorModal';
 import { courses, Course } from '@/data/course';
+import { toast } from 'sonner';
 
 const statusMeta: Record<string, { label: string; color: string; icon: string }> = {
   in_progress: { label: 'В процессе', color: 'text-amber-300 bg-amber-400/15', icon: 'Pencil' },
@@ -39,12 +41,15 @@ const constructorLabel: Record<string, string> = {
 };
 
 const Projects = () => {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [selected, setSelected] = useState<Submission | null>(null);
   const [openCourse, setOpenCourse] = useState<Course | null>(null);
+  const [fullName, setFullName] = useState('');
+  const [groupName, setGroupName] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -58,6 +63,27 @@ const Projects = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    setFullName(user?.full_name || '');
+    setGroupName(user?.group_name || '');
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    if (!fullName.trim() || !groupName.trim()) {
+      toast.error('Заполните ФИО и номер группы');
+      return;
+    }
+    setSavingProfile(true);
+    try {
+      await updateProfile(fullName.trim(), groupName.trim());
+      toast.success('Данные сохранены');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Не удалось сохранить данные');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   const filtered = filter === 'all' ? submissions : submissions.filter((s) => s.status === filter);
   const isTeacher = user?.role === 'teacher';
@@ -105,6 +131,45 @@ const Projects = () => {
               : 'Выполняйте задания курсов прямо здесь и следите за статусом проверки'}
           </p>
         </div>
+
+        {!isTeacher && (
+          <div className="glass rounded-2xl p-5 mb-10">
+            <h2 className="font-display font-bold text-base mb-4 flex items-center gap-2">
+              <Icon name="IdCard" size={18} className="text-primary" />
+              Данные студента
+            </h2>
+            <div className="grid sm:grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1.5 block">ФИО</label>
+                <Input
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Иванов Иван Иванович"
+                  className="h-10 bg-secondary/40 border-border"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1.5 block">Номер группы</label>
+                <Input
+                  value={groupName}
+                  onChange={(e) => setGroupName(e.target.value)}
+                  placeholder="Например: ПМ-21"
+                  className="h-10 bg-secondary/40 border-border"
+                />
+              </div>
+            </div>
+            <Button
+              onClick={handleSaveProfile}
+              disabled={savingProfile}
+              className="bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl"
+            >
+              {savingProfile ? <Icon name="Loader2" size={16} className="animate-spin" /> : 'Сохранить'}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-3">
+              ФИО и группа будут видны преподавателю при отправке заданий на проверку и в рейтинге на главной странице.
+            </p>
+          </div>
+        )}
 
         {!isTeacher && (
           <div className="mb-14">
@@ -200,7 +265,10 @@ const Projects = () => {
                   </div>
                   <h3 className="font-display font-bold text-base mb-1.5 leading-snug">{s.task_title}</h3>
                   {isTeacher && (
-                    <p className="text-xs text-muted-foreground mb-2">{s.student_name}</p>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {s.student_full_name || s.student_name}
+                      {s.student_group && ` · гр. ${s.student_group}`}
+                    </p>
                   )}
                   <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
                     <span>{new Date(s.updated_at).toLocaleDateString('ru-RU')}</span>

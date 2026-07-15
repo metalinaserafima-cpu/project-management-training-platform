@@ -109,7 +109,9 @@ const SubmissionViewer = ({ submission, onOpenChange, isTeacher, onReviewed }: P
               <h2 className="font-display font-extrabold text-2xl mb-1">{submission.task_title}</h2>
               {isTeacher && (
                 <p className="text-sm text-muted-foreground">
-                  {submission.student_name} · {submission.student_email}
+                  {submission.student_full_name || submission.student_name}
+                  {submission.student_group && ` · гр. ${submission.student_group}`}
+                  {' · '}{submission.student_email}
                 </p>
               )}
             </div>

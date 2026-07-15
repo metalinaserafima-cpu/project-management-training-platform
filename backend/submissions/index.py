@@ -81,7 +81,8 @@ def handler(event: dict, context) -> dict:
         if submission_id:
             cur.execute(
                 """
-                SELECT s.*, u.name AS student_name, u.email AS student_email
+                SELECT s.*, u.name AS student_name, u.email AS student_email,
+                       u.full_name AS student_full_name, u.group_name AS student_group
                 FROM submissions s JOIN users u ON u.id = s.user_id
                 WHERE s.id = %s
                 """ % int(submission_id)
@@ -97,7 +98,8 @@ def handler(event: dict, context) -> dict:
 
         if role == 'teacher':
             query = """
-                SELECT s.*, u.name AS student_name, u.email AS student_email
+                SELECT s.*, u.name AS student_name, u.email AS student_email,
+                       u.full_name AS student_full_name, u.group_name AS student_group
                 FROM submissions s JOIN users u ON u.id = s.user_id
             """
             if task_key:

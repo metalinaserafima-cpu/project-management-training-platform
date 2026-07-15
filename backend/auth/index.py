@@ -123,7 +123,7 @@ def handler(event: dict, context) -> dict:
         cur.close()
         conn.close()
 
-        user = {'id': row[0], 'name': row[1], 'email': row[2], 'role': row[3]}
+        user = {'id': row[0], 'name': row[1], 'email': row[2], 'role': row[3], 'full_name': None, 'group_name': None}
         token = make_token({'uid': user['id'], 'role': user['role']}, secret)
         return _resp(200, {'user': user, 'token': token})
 
@@ -134,7 +134,7 @@ def handler(event: dict, context) -> dict:
         conn = get_conn()
         cur = conn.cursor()
         cur.execute(
-            "SELECT id, name, email, password_hash, role FROM users WHERE email = %s" % _sql_str(email)
+            "SELECT id, name, email, password_hash, role, full_name, group_name FROM users WHERE email = %s" % _sql_str(email)
         )
         row = cur.fetchone()
         cur.close()
@@ -143,7 +143,7 @@ def handler(event: dict, context) -> dict:
         if not row or not verify_password(password, row[3]):
             return _resp(401, {'error': 'Неверный email или пароль'})
 
-        user = {'id': row[0], 'name': row[1], 'email': row[2], 'role': row[4]}
+        user = {'id': row[0], 'name': row[1], 'email': row[2], 'role': row[4], 'full_name': row[5], 'group_name': row[6]}
         token = make_token({'uid': user['id'], 'role': user['role']}, secret)
         return _resp(200, {'user': user, 'token': token})
 
@@ -156,7 +156,7 @@ def handler(event: dict, context) -> dict:
 
         conn = get_conn()
         cur = conn.cursor()
-        cur.execute("SELECT id, name, email, role FROM users WHERE id = %s" % int(payload['uid']))
+        cur.execute("SELECT id, name, email, role, full_name, group_name FROM users WHERE id = %s" % int(payload['uid']))
         row = cur.fetchone()
         cur.close()
         conn.close()
@@ -164,7 +164,39 @@ def handler(event: dict, context) -> dict:
         if not row:
             return _resp(401, {'error': 'Пользователь не найден'})
 
-        user = {'id': row[0], 'name': row[1], 'email': row[2], 'role': row[3]}
+        user = {'id': row[0], 'name': row[1], 'email': row[2], 'role': row[3], 'full_name': row[4], 'group_name': row[5]}
+        return _resp(200, {'user': user})
+
+    if method == 'PUT' and action == 'profile':
+        auth_header = event.get('headers', {}).get('X-Authorization') or event.get('headers', {}).get('x-authorization') or ''
+        token = auth_header.replace('Bearer ', '').strip()
+        payload = verify_token(token, secret)
+        if not payload:
+            return _resp(401, {'error': 'Требуется авторизация'})
+
+        full_name = (body.get('full_name') or '').strip()
+        group_name = (body.get('group_name') or '').strip()
+
+        if not full_name or len(full_name) < 2:
+            return _resp(400, {'error': 'Введите ФИО (минимум 2 символа)'})
+        if not group_name:
+            return _resp(400, {'error': 'Введите номер группы'})
+
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE users SET full_name = %s, group_name = %s WHERE id = %s RETURNING id, name, email, role, full_name, group_name"
+            % (_sql_str(full_name), _sql_str(group_name), int(payload['uid']))
+        )
+        row = cur.fetchone()
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        if not row:
+            return _resp(404, {'error': 'Пользователь не найден'})
+
+        user = {'id': row[0], 'name': row[1], 'email': row[2], 'role': row[3], 'full_name': row[4], 'group_name': row[5]}
         return _resp(200, {'user': user})
 
     return _resp(400, {'error': 'Неизвестное действие'})

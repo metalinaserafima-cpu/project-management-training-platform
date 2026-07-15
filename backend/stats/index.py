@@ -92,7 +92,7 @@ def handler(event: dict, context) -> dict:
 
     cur.execute(
         """
-        SELECT u.id AS user_id, u.name,
+        SELECT u.id AS user_id, u.name, u.full_name, u.group_name,
                COUNT(s.id) AS completed_count,
                AVG(EXTRACT(EPOCH FROM (s.updated_at - s.created_at))) AS avg_seconds
         FROM users u
@@ -100,7 +100,7 @@ def handler(event: dict, context) -> dict:
             AND s.status = 'reviewed'
             AND s.updated_at >= now() - interval '7 days'
         WHERE u.role = 'student'
-        GROUP BY u.id, u.name
+        GROUP BY u.id, u.name, u.full_name, u.group_name
         ORDER BY completed_count DESC, avg_seconds ASC
         """
     )
@@ -110,6 +110,8 @@ def handler(event: dict, context) -> dict:
         {
             'user_id': r['user_id'],
             'name': r['name'],
+            'full_name': r['full_name'],
+            'group_name': r['group_name'],
             'completed_count': r['completed_count'],
             'avg_hours': round(float(r['avg_seconds']) / 3600, 1) if r['avg_seconds'] is not None else None,
         }
@@ -120,7 +122,7 @@ def handler(event: dict, context) -> dict:
     if auth and auth.get('role') == 'student':
         uid = int(auth['uid'])
 
-        cur.execute("SELECT id, name FROM users WHERE id = %s" % uid)
+        cur.execute("SELECT id, name, full_name, group_name FROM users WHERE id = %s" % uid)
         me_row = cur.fetchone()
 
         if me_row:
@@ -163,6 +165,8 @@ def handler(event: dict, context) -> dict:
             me = {
                 'user_id': uid,
                 'name': me_row['name'],
+                'full_name': me_row['full_name'],
+                'group_name': me_row['group_name'],
                 'weekly_rank': weekly_rank,
                 'weekly_completed_count': weekly_completed_count,
                 'total_completed_count': total_completed,

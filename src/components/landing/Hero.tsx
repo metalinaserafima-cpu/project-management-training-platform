@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
-import { statsApi } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { statsApi, MyStats } from '@/lib/api';
 
 const Hero = () => {
+  const { user } = useAuth();
   const [stats, setStats] = useState([
     { value: '0', label: 'учеников' },
     { value: '12', label: 'курсов' },
     { value: '0', label: 'завершённых проектов' },
   ]);
+  const [me, setMe] = useState<MyStats | null>(null);
 
   useEffect(() => {
     statsApi
@@ -19,12 +22,20 @@ const Hero = () => {
           { value: String(data.overview.courses_count), label: 'курсов' },
           { value: String(data.overview.completed_projects), label: 'завершённых проектов' },
         ]);
+        setMe(data.me);
       })
       .catch(() => {});
-  }, []);
+  }, [user]);
 
   const scrollTo = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+
+  const displayName = user ? (user.full_name || user.name) : 'Анна Ветрова';
+  const displayGroup = user ? (user.group_name || 'Группа не указана') : 'Project Manager';
+  const initial = displayName.charAt(0).toUpperCase();
+  const completedCount = me?.total_completed_count ?? 9;
+  const totalCourses = 12;
+  const progressPercent = Math.round((completedCount / totalCourses) * 100);
 
   return (
     <section id="hero" className="relative overflow-hidden pt-40 pb-24 grid-bg">
@@ -80,11 +91,11 @@ const Hero = () => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-2xl bg-gradient-brand flex items-center justify-center font-display font-bold text-lg">
-                    А
+                    {initial}
                   </div>
                   <div>
-                    <div className="font-semibold">Анна Ветрова</div>
-                    <div className="text-xs text-muted-foreground">Project Manager</div>
+                    <div className="font-semibold">{displayName}</div>
+                    <div className="text-xs text-muted-foreground">{displayGroup}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-400/15 text-amber-300 text-sm font-semibold">
@@ -96,10 +107,10 @@ const Hero = () => {
               <div className="mb-6">
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-muted-foreground">Прогресс по курсам</span>
-                  <span className="font-semibold">9 / 12 курсов</span>
+                  <span className="font-semibold">{completedCount} / {totalCourses} курсов</span>
                 </div>
                 <div className="h-3 rounded-full bg-secondary overflow-hidden">
-                  <div className="h-full rounded-full bg-gradient-brand" style={{ width: '75%' }} />
+                  <div className="h-full rounded-full bg-gradient-brand" style={{ width: `${progressPercent}%` }} />
                 </div>
               </div>
 

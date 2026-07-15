@@ -11,6 +11,8 @@ export interface User {
   name: string;
   email: string;
   role: 'student' | 'teacher';
+  full_name?: string | null;
+  group_name?: string | null;
 }
 
 const TOKEN_KEY = 'prolevel_token';
@@ -47,6 +49,11 @@ export const authApi = {
       body: JSON.stringify({ email, password }),
     }),
   me: () => request(`${AUTH_URL}?action=me`),
+  updateProfile: (fullName: string, groupName: string) =>
+    request(`${AUTH_URL}?action=profile`, {
+      method: 'PUT',
+      body: JSON.stringify({ full_name: fullName, group_name: groupName }),
+    }) as Promise<{ user: User }>,
 };
 
 export interface Submission {
@@ -62,6 +69,8 @@ export interface Submission {
   updated_at: string;
   student_name?: string;
   student_email?: string;
+  student_full_name?: string | null;
+  student_group?: string | null;
 }
 
 export const submissionsApi = {
@@ -147,6 +156,8 @@ export interface CourseProgress {
 export interface MyStats {
   user_id: number;
   name: string;
+  full_name: string | null;
+  group_name: string | null;
   weekly_rank: number | null;
   weekly_completed_count: number;
   total_completed_count: number;
@@ -165,6 +176,8 @@ export interface MyStats {
 export interface WeeklyLeader {
   user_id: number;
   name: string;
+  full_name: string | null;
+  group_name: string | null;
   completed_count: number;
   avg_hours: number | null;
 }

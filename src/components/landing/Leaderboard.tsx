@@ -43,11 +43,13 @@ const Leaderboard = () => {
               <div className="glass rounded-3xl p-6">
                 <div className="flex items-center gap-4 mb-5">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-brand flex items-center justify-center font-display font-bold text-xl glow">
-                    {user.name.charAt(0).toUpperCase()}
+                    {(user.full_name || user.name).charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <div className="font-semibold text-lg">Твой профиль</div>
-                    <div className="text-sm text-muted-foreground">{user.name}</div>
+                    <div className="font-semibold text-lg">{user.full_name || user.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {user.group_name ? `Группа ${user.group_name}` : 'Группа не указана'}
+                    </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
@@ -87,6 +89,7 @@ const Leaderboard = () => {
                 {leaders.map((u, i) => {
                   const rank = i + 1;
                   const isMe = me?.user_id === u.user_id;
+                  const displayName = u.full_name || u.name;
                   return (
                     <div
                       key={u.user_id}
@@ -100,15 +103,15 @@ const Leaderboard = () => {
                         {rank}
                       </div>
                       <div className="w-10 h-10 rounded-xl bg-gradient-brand flex items-center justify-center font-display font-bold shrink-0">
-                        {u.name.charAt(0).toUpperCase()}
+                        {displayName.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="font-semibold truncate flex items-center gap-2">
-                          {u.name}
+                          {displayName}
                           {isMe && <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/20 text-primary">вы</span>}
                         </div>
                         <div className="text-xs text-muted-foreground truncate">
-                          {u.avg_hours !== null ? `в среднем ${u.avg_hours} ч на задание` : 'задания в процессе проверки'}
+                          {u.group_name ? `Группа ${u.group_name}` : (u.avg_hours !== null ? `в среднем ${u.avg_hours} ч на задание` : 'задания в процессе проверки')}
                         </div>
                       </div>
                       <div className="text-right shrink-0">
