@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { submissionsApi } from '@/lib/api';
 import { TaskType } from '@/data/course';
@@ -42,6 +43,7 @@ type SubmissionStatus = 'in_progress' | 'submitted' | 'reviewed' | 'needs_revisi
 
 const TaskWorkspace = ({ taskType, taskKey, taskTitle, onSubmitted }: Props) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [submissionId, setSubmissionId] = useState<number | null>(null);
   const [content, setContent] = useState<Record<string, unknown> | null>(null);
   const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus | null>(null);
@@ -105,6 +107,11 @@ const TaskWorkspace = ({ taskType, taskKey, taskTitle, onSubmitted }: Props) => 
 
   const submit = () => {
     if (!content) return;
+    if (!user?.full_name || !user?.group_name) {
+      toast.error('Укажите ФИО и номер группы в личном кабинете перед отправкой задания');
+      navigate('/projects');
+      return;
+    }
     persist(content, 'submitted');
     toast.success('Работа отправлена преподавателю! Загляните на вкладку «Проекты» 🎉');
     onSubmitted?.();
@@ -241,13 +248,21 @@ const TaskWorkspace = ({ taskType, taskKey, taskTitle, onSubmitted }: Props) => 
       {renderBuilder()}
 
       {!readOnly && (
-        <Button
-          onClick={submit}
-          className="w-full mt-5 bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl"
-        >
-          <Icon name="Send" size={16} className="mr-1.5" />
-          Отправить преподавателю
-        </Button>
+        <>
+          {(!user?.full_name || !user?.group_name) && (
+            <p className="text-xs text-amber-300 mt-3 flex items-center gap-1.5">
+              <Icon name="AlertTriangle" size={13} />
+              Перед отправкой укажите ФИО и группу в личном кабинете
+            </p>
+          )}
+          <Button
+            onClick={submit}
+            className="w-full mt-3 bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl"
+          >
+            <Icon name="Send" size={16} className="mr-1.5" />
+            Отправить преподавателю
+          </Button>
+        </>
       )}
     </div>
   );

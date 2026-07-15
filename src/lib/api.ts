@@ -163,6 +163,8 @@ export interface MyStats {
   total_completed_count: number;
   total_started_count: number;
   total_submitted_count: number;
+  design_doc_accepted: boolean;
+  last_completed_task_title: string | null;
   courses: CourseProgress[];
   badges: {
     first_start: boolean;

@@ -162,6 +162,16 @@ def handler(event: dict, context) -> dict:
             )
             active_this_week = cur.fetchone()['c'] > 0
 
+            cur.execute("SELECT COUNT(*) AS c FROM design_documents WHERE user_id = %s AND status = 'accepted'" % uid)
+            design_doc_accepted = cur.fetchone()['c'] > 0
+
+            cur.execute(
+                "SELECT task_title FROM submissions WHERE user_id = %s AND status = 'reviewed' ORDER BY updated_at DESC LIMIT 1"
+                % uid
+            )
+            last_row = cur.fetchone()
+            last_completed_task_title = last_row['task_title'] if last_row else None
+
             me = {
                 'user_id': uid,
                 'name': me_row['name'],
@@ -172,6 +182,8 @@ def handler(event: dict, context) -> dict:
                 'total_completed_count': total_completed,
                 'total_started_count': total_started,
                 'total_submitted_count': total_submitted,
+                'design_doc_accepted': design_doc_accepted,
+                'last_completed_task_title': last_completed_task_title,
                 'courses': courses,
                 'badges': {
                     'first_start': total_started >= 1,

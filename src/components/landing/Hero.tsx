@@ -98,10 +98,6 @@ const Hero = () => {
                     <div className="text-xs text-muted-foreground">{displayGroup}</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-amber-400/15 text-amber-300 text-sm font-semibold">
-                  <Icon name="Flame" size={15} />
-                  14
-                </div>
               </div>
 
               <div className="mb-6">
@@ -128,14 +124,18 @@ const Hero = () => {
               </div>
             </div>
 
-            <div className="absolute -top-6 -right-4 glass rounded-2xl px-4 py-3 flex items-center gap-2 animate-float">
-              <Icon name="Award" size={20} className="text-cyan-300" />
-              <span className="text-sm font-semibold">Задание принято</span>
-            </div>
-            <div className="absolute -bottom-5 -left-4 glass rounded-2xl px-4 py-3 flex items-center gap-2 animate-float" style={{ animationDelay: '2s' }}>
-              <Icon name="CheckCircle2" size={20} className="text-emerald-300" />
-              <span className="text-sm font-semibold">Задача закрыта</span>
-            </div>
+            {me?.design_doc_accepted && (
+              <div className="absolute -top-6 -right-4 glass rounded-2xl px-4 py-3 flex items-center gap-2 animate-float">
+                <Icon name="Award" size={20} className="text-cyan-300" />
+                <span className="text-sm font-semibold">Зачётное задание принято</span>
+              </div>
+            )}
+            {me?.last_completed_task_title && (
+              <div className="absolute -bottom-5 -left-4 glass rounded-2xl px-4 py-3 flex items-center gap-2 animate-float" style={{ animationDelay: '2s' }}>
+                <Icon name="CheckCircle2" size={20} className="text-emerald-300" />
+                <span className="text-sm font-semibold truncate max-w-[220px]">{me.last_completed_task_title}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

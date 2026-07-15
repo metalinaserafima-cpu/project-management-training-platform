@@ -88,6 +88,11 @@ const DesignDocEditor = () => {
 
   const handleSubmit = async () => {
     if (!doc) return;
+    if (!user?.full_name || !user?.group_name) {
+      toast.error('Укажите ФИО и номер группы в личном кабинете перед отправкой документа');
+      navigate('/projects');
+      return;
+    }
     setSubmitting(true);
     try {
       const { document } = await designDocumentsApi.submit(doc.id, sectionsRef.current);
@@ -304,7 +309,9 @@ const DesignDocEditor = () => {
                   <AlertDialogHeader>
                     <AlertDialogTitle>Отправить документ на проверку?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      После отправки редактирование будет недоступно до момента, пока преподаватель не вернёт документ на доработку.
+                      {(!user?.full_name || !user?.group_name)
+                        ? 'Перед отправкой укажите ФИО и номер группы в личном кабинете — преподаватель должен видеть, кто автор работы.'
+                        : 'После отправки редактирование будет недоступно до момента, пока преподаватель не вернёт документ на доработку.'}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
