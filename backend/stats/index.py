@@ -118,6 +118,45 @@ def handler(event: dict, context) -> dict:
         for r in weekly_rows[:5]
     ]
 
+    cur.execute(
+        """
+        SELECT u.id AS user_id, u.name, u.full_name, u.group_name,
+               COUNT(s.id) FILTER (WHERE s.status = 'reviewed') AS completed_count
+        FROM users u
+        LEFT JOIN submissions s ON s.user_id = u.id
+        WHERE u.role = 'student' AND u.full_name IS NOT NULL AND u.group_name IS NOT NULL
+        GROUP BY u.id, u.name, u.full_name, u.group_name
+        ORDER BY completed_count DESC, u.name ASC
+        """
+    )
+    public_rows = cur.fetchall()
+
+    def level_for(completed: int) -> dict:
+        total = len(COURSE_TASK_KEYS)
+        if completed >= total:
+            return {'label': 'Стратег', 'icon': 'BrainCircuit', 'color': 'from-violet-500 to-purple-600'}
+        if completed >= 10:
+            return {'label': 'Эксперт', 'icon': 'Crown', 'color': 'from-emerald-500 to-teal-600'}
+        if completed >= 6:
+            return {'label': 'Профи', 'icon': 'Trophy', 'color': 'from-amber-500 to-yellow-600'}
+        if completed >= 3:
+            return {'label': 'Спринтер', 'icon': 'Target', 'color': 'from-cyan-500 to-blue-600'}
+        if completed >= 1:
+            return {'label': 'Первый старт', 'icon': 'Rocket', 'color': 'from-fuchsia-500 to-pink-600'}
+        return {'label': 'Новичок', 'icon': 'Sparkles', 'color': 'from-slate-500 to-slate-600'}
+
+    public_leaderboard = [
+        {
+            'user_id': r['user_id'],
+            'name': r['name'],
+            'full_name': r['full_name'],
+            'group_name': r['group_name'],
+            'completed_count': r['completed_count'],
+            'level': level_for(r['completed_count']),
+        }
+        for r in public_rows
+    ]
+
     students_progress = None
     if auth and auth.get('role') == 'teacher':
         cur.execute("SELECT id, name, full_name, group_name FROM users WHERE role = 'student' ORDER BY name")
@@ -235,6 +274,7 @@ def handler(event: dict, context) -> dict:
             'completed_projects': completed_projects,
         },
         'weekly_leaderboard': weekly_leaderboard,
+        'public_leaderboard': public_leaderboard,
         'me': me,
         'students_progress': students_progress,
     })

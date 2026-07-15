@@ -193,6 +193,19 @@ export interface StudentProgress {
   total_started_count: number;
 }
 
+export interface PublicLeader {
+  user_id: number;
+  name: string;
+  full_name: string | null;
+  group_name: string | null;
+  completed_count: number;
+  level: {
+    label: string;
+    icon: string;
+    color: string;
+  };
+}
+
 export interface StatsResponse {
   overview: {
     students_count: number;
@@ -200,6 +213,7 @@ export interface StatsResponse {
     completed_projects: number;
   };
   weekly_leaderboard: WeeklyLeader[];
+  public_leaderboard: PublicLeader[];
   me: MyStats | null;
   students_progress: StudentProgress[] | null;
 }
