@@ -167,6 +167,7 @@
   scrollbar-color: hsl(258 90% 66% / 0.5) transparent;
 }
 .scrollbar-visible::-webkit-scrollbar {
+  width: 8px;
   height: 8px;
 }
 .scrollbar-visible::-webkit-scrollbar-track {

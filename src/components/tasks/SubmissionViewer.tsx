@@ -102,7 +102,7 @@ const SubmissionViewer = ({ submission, onOpenChange, isTeacher, onReviewed }: P
 
   return (
     <Dialog open={!!submission} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-card border-border rounded-3xl p-0 min-w-0">
+      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-card border-border rounded-3xl p-0 min-w-0 scrollbar-visible">
         <div className="p-6 md:p-8 min-w-0">
           <div className="flex items-start justify-between mb-6 gap-4">
             <div>

@@ -81,13 +81,7 @@ def handler(event: dict, context) -> dict:
     cur.execute("SELECT COUNT(*) AS c FROM users WHERE role = 'student'")
     students_count = cur.fetchone()['c']
 
-    cur.execute(
-        """
-        SELECT
-            (SELECT COUNT(*) FROM submissions WHERE status = 'reviewed') +
-            (SELECT COUNT(*) FROM design_documents WHERE status = 'accepted') AS c
-        """
-    )
+    cur.execute("SELECT COUNT(*) AS c FROM design_documents WHERE status = 'accepted'")
     completed_projects = cur.fetchone()['c']
 
     cur.execute(
