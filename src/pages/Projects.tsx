@@ -103,13 +103,16 @@ const Projects = () => {
     <div className="min-h-screen bg-background text-foreground grid-bg">
       <header className="border-b border-border">
         <div className="container flex items-center justify-between py-5">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-brand flex items-center justify-center glow">
-              <Icon name="Puzzle" size={20} className="text-white" />
+          <Link to="/" className="flex items-center gap-3">
+            <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-brand flex items-center justify-center glow shrink-0">
+              <Icon name="Puzzle" size={40} className="text-white" />
             </div>
-            <span className="font-display font-extrabold text-xl">
-              Pro<span className="text-gradient">Puzzle</span>
-            </span>
+            <div>
+              <span className="font-display font-extrabold text-4xl leading-none block">
+                Pro<span className="text-gradient">Puzzle</span>
+              </span>
+              <span className="text-sm text-muted-foreground">Собери свой проект</span>
+            </div>
           </Link>
           <div className="flex items-center gap-2">
             <Link to="/design-docs">
