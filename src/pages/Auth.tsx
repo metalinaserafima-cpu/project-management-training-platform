@@ -47,13 +47,16 @@ const Auth = () => {
       <div className="absolute bottom-0 -right-20 w-[460px] h-[460px] rounded-full bg-accent/20 blur-[120px] animate-blob" style={{ animationDelay: '4s' }} />
 
       <div className="relative w-full max-w-md">
-        <Link to="/" className="flex items-center justify-center gap-2.5 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-gradient-brand flex items-center justify-center glow">
-            <Icon name="Puzzle" size={22} className="text-white" />
+        <Link to="/" className="flex flex-col items-center justify-center gap-3 mb-8">
+          <div className="w-[72px] h-[72px] rounded-2xl bg-gradient-brand flex items-center justify-center glow">
+            <Icon name="Puzzle" size={40} className="text-white" />
           </div>
-          <span className="font-display font-extrabold text-2xl tracking-tight">
-            Pro<span className="text-gradient">Puzzle</span>
-          </span>
+          <div className="text-center">
+            <span className="font-display font-extrabold text-4xl tracking-tight leading-none block">
+              Pro<span className="text-gradient">Puzzle</span>
+            </span>
+            <span className="text-sm text-muted-foreground">Собери свой проект</span>
+          </div>
         </Link>
 
         <div className="glass rounded-3xl p-8 glow">

@@ -4,13 +4,16 @@ const Footer = () => (
   <footer className="border-t border-border pt-16 pb-8">
     <div className="container">
       <div className="mb-14">
-        <div className="flex items-center gap-2.5 mb-4">
-          <div className="w-9 h-9 rounded-xl bg-gradient-brand flex items-center justify-center">
-            <Icon name="Puzzle" size={20} className="text-white" />
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-brand flex items-center justify-center shrink-0">
+            <Icon name="Puzzle" size={30} className="text-white" />
           </div>
-          <span className="font-display font-extrabold text-xl">
-            Pro<span className="text-gradient">Puzzle</span>
-          </span>
+          <div>
+            <span className="font-display font-extrabold text-2xl leading-none block">
+              Pro<span className="text-gradient">Puzzle</span>
+            </span>
+            <span className="text-xs text-muted-foreground">Собери свой проект</span>
+          </div>
         </div>
         <p className="text-muted-foreground max-w-xs leading-relaxed">
           Обучающая платформа по управлению проектами с интерактивным интерфейсом и практическими заданиями.

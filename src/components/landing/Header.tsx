@@ -46,13 +46,16 @@ const Header = () => {
       }`}
     >
       <div className="container flex items-center justify-between">
-        <button onClick={() => scrollTo('#hero')} className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-brand flex items-center justify-center glow">
-            <Icon name="Puzzle" size={20} className="text-white" />
+        <button onClick={() => scrollTo('#hero')} className="flex items-center gap-3">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-brand flex items-center justify-center glow shrink-0">
+            <Icon name="Puzzle" size={30} className="text-white" />
           </div>
-          <span className="font-display font-extrabold text-xl tracking-tight">
-            Pro<span className="text-gradient">Puzzle</span>
-          </span>
+          <div className="text-left">
+            <span className="font-display font-extrabold text-2xl leading-none tracking-tight block">
+              Pro<span className="text-gradient">Puzzle</span>
+            </span>
+            <span className="text-xs text-muted-foreground">Собери свой проект</span>
+          </div>
         </button>
 
         <nav className="hidden md:flex items-center gap-1">
