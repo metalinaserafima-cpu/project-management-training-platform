@@ -22,8 +22,8 @@ const TaskConstructorModal = ({ course, onOpenChange, onSubmitted }: Props) => {
 
   return (
     <Dialog open={!!course} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] p-0 gap-0 overflow-hidden bg-card border-border rounded-3xl min-w-0">
-        <div className="flex flex-col max-h-[90vh] min-w-0">
+      <DialogContent className="max-w-4xl w-[95vw] h-[90vh] p-0 gap-0 overflow-hidden bg-card border-border rounded-3xl min-w-0 flex flex-col">
+        <div className="flex flex-col h-full min-h-0 min-w-0">
           <div className="p-5 border-b border-border flex items-center gap-3 shrink-0">
             <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${course.color} flex items-center justify-center shrink-0`}>
               <Icon name={course.icon} size={22} className="text-white" />
@@ -34,7 +34,7 @@ const TaskConstructorModal = ({ course, onOpenChange, onSubmitted }: Props) => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto overflow-x-hidden p-5 md:p-7 min-w-0 scrollbar-visible">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-5 md:p-7 min-w-0 scrollbar-visible">
             {!user ? (
               <div className="rounded-xl border border-dashed border-border p-8 text-center bg-card/40">
                 <Icon name="LogIn" size={28} className="mx-auto mb-3 text-muted-foreground" />

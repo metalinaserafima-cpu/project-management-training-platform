@@ -21,8 +21,8 @@ const CoursePlayer = ({ course, onOpenChange }: Props) => {
 
   return (
     <Dialog open={!!course} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl w-[95vw] h-[90vh] p-0 gap-0 overflow-hidden bg-card border-border rounded-3xl min-w-0">
-        <div className="flex flex-col h-full min-w-0">
+      <DialogContent className="max-w-3xl w-[95vw] h-[90vh] p-0 gap-0 overflow-hidden bg-card border-border rounded-3xl min-w-0 flex flex-col">
+        <div className="flex flex-col h-full min-h-0 min-w-0">
           <div className="p-5 border-b border-border flex items-center gap-3 shrink-0">
             <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${course.color} flex items-center justify-center`}>
               <Icon name={course.icon} size={22} className="text-white" />
@@ -33,7 +33,7 @@ const CoursePlayer = ({ course, onOpenChange }: Props) => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-9 min-w-0 scrollbar-visible">
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-6 md:p-9 min-w-0 scrollbar-visible">
             <h2 className="font-display font-extrabold text-2xl md:text-3xl mb-1.5">{lesson.title}</h2>
             <p className="text-muted-foreground mb-6">{lesson.subtitle}</p>
 
