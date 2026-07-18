@@ -95,6 +95,11 @@ def handler(event: dict, context) -> dict:
         email = (body.get('email') or '').strip().lower()
         password = body.get('password') or ''
         role = body.get('role') or 'student'
+        invite_code = (body.get('invite_code') or '').strip()
+
+        required_invite_code = os.environ.get('INVITE_CODE', '')
+        if required_invite_code and invite_code != required_invite_code:
+            return _resp(403, {'error': 'Неверный код-приглашение'})
 
         if role not in ('student', 'teacher'):
             role = 'student'

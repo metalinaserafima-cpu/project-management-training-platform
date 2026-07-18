@@ -5,7 +5,7 @@ interface AuthContextValue {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: 'student' | 'teacher') => Promise<void>;
+  register: (name: string, email: string, password: string, role: 'student' | 'teacher', inviteCode: string) => Promise<void>;
   logout: () => void;
   updateProfile: (fullName: string, groupName: string) => Promise<void>;
 }
@@ -35,8 +35,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(data.user);
   };
 
-  const register = async (name: string, email: string, password: string, role: 'student' | 'teacher') => {
-    const data = await authApi.register(name, email, password, role);
+  const register = async (name: string, email: string, password: string, role: 'student' | 'teacher', inviteCode: string) => {
+    const data = await authApi.register(name, email, password, role, inviteCode);
     setToken(data.token);
     setUser(data.user);
   };

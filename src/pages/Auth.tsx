@@ -14,6 +14,7 @@ const Auth = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [role, setRole] = useState<'student' | 'teacher'>('student');
   const [loading, setLoading] = useState(false);
 
@@ -30,7 +31,7 @@ const Auth = () => {
         await login(email, password);
         toast.success('С возвращением!');
       } else {
-        await register(name, email, password, role);
+        await register(name, email, password, role, inviteCode);
         toast.success('Аккаунт создан!');
       }
       navigate(from, { replace: true });
@@ -120,6 +121,20 @@ const Auth = () => {
                 className="h-12 rounded-xl bg-secondary/60 border-border"
               />
             </div>
+
+            {mode === 'register' && (
+              <div>
+                <Label htmlFor="inviteCode" className="text-sm text-muted-foreground mb-1.5 block">Код-приглашение</Label>
+                <Input
+                  id="inviteCode"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value)}
+                  placeholder="Код, полученный от организатора"
+                  required
+                  className="h-12 rounded-xl bg-secondary/60 border-border"
+                />
+              </div>
+            )}
 
             {mode === 'register' && (
               <div>

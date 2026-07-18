@@ -38,10 +38,10 @@ async function request(url: string, options: RequestInit = {}) {
 }
 
 export const authApi = {
-  register: (name: string, email: string, password: string, role: 'student' | 'teacher') =>
+  register: (name: string, email: string, password: string, role: 'student' | 'teacher', inviteCode: string) =>
     request(`${AUTH_URL}?action=register`, {
       method: 'POST',
-      body: JSON.stringify({ name, email, password, role }),
+      body: JSON.stringify({ name, email, password, role, invite_code: inviteCode }),
     }),
   login: (email: string, password: string) =>
     request(`${AUTH_URL}?action=login`, {
