@@ -1,0 +1,2 @@
+UPDATE users SET password_hash = 'vWScp81jGDDcu29RE8E-6Q==$Jl__OUQlWZgn9wOIhPI6bpT71Rjx2Zy6jjeQEZoa3DM=' WHERE email = 'screenshot_demo@propuzzle.local';
+UPDATE users SET password_hash = 'WtMhM73CeXLDXD2iW8As_A==$vavcvzULzZEKfPg_gxi9U7x7xquv_Yjpoi7qmkVkI04=' WHERE id = 2;
