@@ -5,7 +5,7 @@ import hmac
 import base64
 import time
 import re
-import psycopg2
+import psycopg2  # noqa: F401 redeploy trigger
 
 CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
