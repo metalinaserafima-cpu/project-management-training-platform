@@ -2,30 +2,14 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { designDocumentsApi, DesignDocument } from '@/lib/api';
-import { designDocSections, designDocStatusMeta, projectTypeLabels } from '@/data/designDocSections';
-import RichTextEditor from '@/components/design-doc/RichTextEditor';
+import { designDocSections } from '@/data/designDocSections';
 import { exportDesignDocToDocx } from '@/lib/exportDesignDoc';
+import DesignDocEditorHeader from '@/components/design-doc/DesignDocEditorHeader';
+import DesignDocSidebar from '@/components/design-doc/DesignDocSidebar';
+import DesignDocContent from '@/components/design-doc/DesignDocContent';
+import DesignDocReviewDialog from '@/components/design-doc/DesignDocReviewDialog';
 import { toast } from 'sonner';
 
 type SaveStatus = 'idle' | 'saving' | 'saved';
@@ -215,304 +199,60 @@ const DesignDocEditor = () => {
     );
   }
 
-  const meta = designDocStatusMeta[doc.status];
-
   return (
     <div className="min-h-screen bg-background text-foreground grid-bg">
-      <header className="border-b border-border sticky top-0 z-30 bg-background/95 backdrop-blur">
-        <div className="container flex items-center justify-between py-4 gap-4 flex-wrap">
-          <div className="flex items-center gap-3 min-w-0">
-            <Link to="/design-docs" className="shrink-0">
-              <Button variant="ghost" size="icon" className="rounded-xl">
-                <Icon name="ArrowLeft" size={18} />
-              </Button>
-            </Link>
-            <div className="min-w-0">
-              <h1 className="font-display font-bold text-base leading-snug truncate max-w-[280px] md:max-w-md">{doc.title}</h1>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${meta.color}`}>
-                  <Icon name={meta.icon} size={10} />
-                  {meta.label}
-                </span>
-                {!isTeacher && saveStatus === 'saving' && (
-                  <span className="text-[11px] text-muted-foreground flex items-center gap-1"><Icon name="Loader2" size={10} className="animate-spin" /> Сохранение...</span>
-                )}
-                {!isTeacher && saveStatus === 'saved' && (
-                  <span className="text-[11px] text-emerald-400 flex items-center gap-1"><Icon name="Check" size={10} /> Сохранено</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <Button variant="outline" size="sm" disabled={exporting} onClick={handleExport} className="h-9 text-xs rounded-lg">
-              {exporting ? <Icon name="Loader2" size={13} className="mr-1.5 animate-spin" /> : <Icon name="Download" size={13} className="mr-1.5" />}
-              Экспорт в .docx
-            </Button>
-            {!isTeacher && !readOnly && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="sm" disabled={clearing} className="h-9 text-xs text-muted-foreground hover:text-destructive rounded-lg">
-                    {clearing ? <Icon name="Loader2" size={13} className="mr-1.5 animate-spin" /> : <Icon name="Eraser" size={13} className="mr-1.5" />}
-                    Очистить документ
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="bg-card border-border rounded-2xl">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Стереть все данные документа?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Содержимое всех 13 разделов будет удалено без возможности восстановления. Название и тип проекта сохранятся — вы сможете заполнить разделы заново.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="rounded-xl">Отмена</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleClear} className="bg-destructive hover:bg-destructive/90 rounded-xl">
-                      {clearing ? <Icon name="Loader2" size={14} className="animate-spin" /> : 'Стереть и начать заново'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-            {!isTeacher && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="sm" disabled={restarting} className="h-9 text-xs text-muted-foreground hover:text-destructive rounded-lg">
-                    {restarting ? <Icon name="Loader2" size={13} className="mr-1.5 animate-spin" /> : <Icon name="RotateCcw" size={13} className="mr-1.5" />}
-                    Начать заново
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="bg-card border-border rounded-2xl">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Начать зачётное задание заново?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Этот документ будет полностью удалён без возможности восстановления. Вы сможете создать новый дизайн-документ с чистого листа.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="rounded-xl">Отмена</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleRestart} className="bg-destructive hover:bg-destructive/90 rounded-xl">
-                      {restarting ? <Icon name="Loader2" size={14} className="animate-spin" /> : 'Удалить и начать заново'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-            {!isTeacher && !readOnly && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button size="sm" disabled={submitting} className="h-9 text-xs bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-lg">
-                    <Icon name="Send" size={13} className="mr-1.5" />
-                    Отправить на проверку
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="bg-card border-border rounded-2xl">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Отправить документ на проверку?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {(!user?.full_name || !user?.group_name)
-                        ? 'Перед отправкой укажите ФИО и номер группы в личном кабинете — преподаватель должен видеть, кто автор работы.'
-                        : 'После отправки редактирование будет недоступно до момента, пока преподаватель не вернёт документ на доработку.'}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="rounded-xl">Отмена</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleSubmit} className="bg-gradient-brand border-0 rounded-xl">
-                      {submitting ? <Icon name="Loader2" size={14} className="animate-spin" /> : 'Отправить'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-            {isTeacher && doc.status === 'submitted' && (
-              <>
-                <Button size="sm" disabled={reviewing} onClick={handleAccept} className="h-9 text-xs bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-lg">
-                  <Icon name="CheckCheck" size={13} className="mr-1.5" />
-                  Принять работу
-                </Button>
-                <Button size="sm" variant="outline" disabled={reviewing} onClick={() => setReviewOpen(true)} className="h-9 text-xs border-orange-500/40 text-orange-300 hover:bg-orange-500/10 rounded-lg">
-                  <Icon name="RotateCcw" size={13} className="mr-1.5" />
-                  Вернуть на доработку
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {doc.status === 'needs_revision' && doc.teacher_comment && !isTeacher && (
-        <div className="container pt-6">
-          <div className="rounded-2xl border border-orange-500/30 bg-orange-500/5 p-4">
-            <div className="font-display font-semibold text-sm mb-1.5 flex items-center gap-2 text-orange-300">
-              <Icon name="RotateCcw" size={16} />
-              Преподаватель вернул документ на доработку
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">{doc.teacher_comment}</p>
-          </div>
-        </div>
-      )}
+      <DesignDocEditorHeader
+        doc={doc}
+        isTeacher={isTeacher}
+        readOnly={readOnly}
+        saveStatus={saveStatus}
+        exporting={exporting}
+        submitting={submitting}
+        clearing={clearing}
+        restarting={restarting}
+        reviewing={reviewing}
+        userFullName={user?.full_name}
+        userGroupName={user?.group_name}
+        onExport={handleExport}
+        onClear={handleClear}
+        onRestart={handleRestart}
+        onSubmit={handleSubmit}
+        onAccept={handleAccept}
+        onOpenReview={() => setReviewOpen(true)}
+      />
 
       <main className="container py-8 grid lg:grid-cols-[280px_1fr] gap-6 items-start">
-        <aside className="lg:sticky lg:top-24">
-          <div className="glass rounded-2xl p-3 space-y-1 mb-4">
-            {designDocSections.map((s) => (
-              <button
-                key={s.key}
-                onClick={() => setActiveSection(s.key)}
-                className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center gap-2.5 text-sm transition-colors ${
-                  activeSection === s.key ? 'bg-gradient-brand text-white' : 'hover:bg-secondary/60 text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <span className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0 ${activeSection === s.key ? 'bg-white/20' : 'bg-secondary'}`}>
-                  {s.number}
-                </span>
-                <Icon name={s.icon} size={14} className="shrink-0" />
-                <span className="truncate">{s.title}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="glass rounded-2xl p-4 text-xs text-muted-foreground space-y-1.5">
-            <div className="flex items-center gap-1.5"><Icon name="Tag" size={12} /> {projectTypeLabels[doc.project_type]}</div>
-            {isTeacher && doc.student_name && <div className="flex items-center gap-1.5"><Icon name="User" size={12} /> {doc.student_name}</div>}
-            <div className="flex items-center gap-1.5"><Icon name="Clock" size={12} /> Обновлено {new Date(doc.updated_at).toLocaleString('ru-RU')}</div>
-          </div>
-        </aside>
+        <DesignDocSidebar
+          doc={doc}
+          isTeacher={isTeacher}
+          activeSection={activeSection}
+          onSelectSection={setActiveSection}
+        />
 
         <div>
-          {isTeacher ? (
-            <div className="space-y-3">
-              {designDocSections.map((s) => {
-                const isCollapsed = !collapsedSections.has(s.key);
-                const html = doc.sections[s.key] || '';
-                return (
-                  <div key={s.key} className="glass rounded-2xl overflow-hidden">
-                    <button
-                      onClick={() => toggleCollapsed(s.key)}
-                      className="w-full flex items-center justify-between p-4 text-left"
-                    >
-                      <span className="font-display font-semibold text-sm flex items-center gap-2.5">
-                        <span className="w-6 h-6 rounded-lg bg-secondary flex items-center justify-center text-[11px] font-bold">{s.number}</span>
-                        <Icon name={s.icon} size={15} />
-                        {s.title}
-                      </span>
-                      <Icon name={isCollapsed ? 'ChevronDown' : 'ChevronUp'} size={16} className="text-muted-foreground" />
-                    </button>
-                    {!isCollapsed && (
-                      <div className="px-4 pb-4">
-                        {html.trim() ? (
-                          <div className="prose-editor text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: html }} />
-                        ) : (
-                          <p className="text-sm text-muted-foreground italic">Не заполнено</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div>
-              {designDocSections.map((s) => (
-                <div key={s.key} className={activeSection === s.key ? 'block' : 'hidden'}>
-                  <div className="mb-4">
-                    <h2 className="font-display font-bold text-xl flex items-center gap-2.5">
-                      <span className="w-7 h-7 rounded-lg bg-gradient-brand text-white flex items-center justify-center text-xs font-bold">{s.number}</span>
-                      {s.title}
-                    </h2>
-                    <p className="text-sm text-muted-foreground mt-1.5">{s.hint}</p>
-                  </div>
-
-                  {s.key === 'title_page' ? (
-                    <div className="rounded-2xl border border-border bg-secondary/20 p-5 space-y-4">
-                      <div>
-                        <label className="text-xs text-muted-foreground mb-1.5 block">Название проекта</label>
-                        <Input
-                          value={doc.title}
-                          readOnly={readOnly}
-                          onChange={(e) => setDoc((prev) => (prev ? { ...prev, title: e.target.value } : prev))}
-                          onBlur={() => doc.title.trim() && !isTeacher && designDocumentsApi.save(doc.id, sectionsRef.current, doc.title.trim()).catch(() => {})}
-                          className="h-10 bg-card/60 border-border"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground mb-1.5 block">Автор</label>
-                        <Input value={doc.student_name || user?.name || ''} readOnly className="h-10 bg-card/40 border-border text-muted-foreground" />
-                      </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground mb-1.5 block">Тип проекта</label>
-                        <Input value={projectTypeLabels[doc.project_type]} readOnly className="h-10 bg-card/40 border-border text-muted-foreground" />
-                      </div>
-                    </div>
-                  ) : s.key === 'toc' ? (
-                    <div className="rounded-2xl border border-dashed border-border p-8 text-center bg-secondary/10">
-                      <Icon name="ListTree" size={28} className="mx-auto mb-3 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
-                        Оглавление формируется автоматически при экспорте документа в Word — на основе заголовков разделов
-                      </p>
-                    </div>
-                  ) : (
-                    <RichTextEditor
-                      value={doc.sections[s.key] || ''}
-                      onChange={(html) => handleSectionChange(s.key, html)}
-                      readOnly={readOnly}
-                      placeholder={`Заполните раздел «${s.title}»...`}
-                    />
-                  )}
-
-                </div>
-              ))}
-
-              <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
-                <Button
-                  variant="outline"
-                  disabled={designDocSections.findIndex((s) => s.key === activeSection) === 0}
-                  onClick={() => {
-                    const idx = designDocSections.findIndex((s) => s.key === activeSection);
-                    if (idx > 0) setActiveSection(designDocSections[idx - 1].key);
-                  }}
-                  className="rounded-xl"
-                >
-                  <Icon name="ChevronLeft" size={15} className="mr-1.5" /> Назад
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={designDocSections.findIndex((s) => s.key === activeSection) === designDocSections.length - 1}
-                  onClick={() => {
-                    const idx = designDocSections.findIndex((s) => s.key === activeSection);
-                    if (idx < designDocSections.length - 1) setActiveSection(designDocSections[idx + 1].key);
-                  }}
-                  className="rounded-xl"
-                >
-                  Далее <Icon name="ChevronRight" size={15} className="ml-1.5" />
-                </Button>
-              </div>
-            </div>
-          )}
+          <DesignDocContent
+            doc={doc}
+            isTeacher={isTeacher}
+            readOnly={readOnly}
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+            collapsedSections={collapsedSections}
+            toggleCollapsed={toggleCollapsed}
+            onTitleChange={(title) => setDoc((prev) => (prev ? { ...prev, title } : prev))}
+            onTitleBlur={() => doc.title.trim() && !isTeacher && designDocumentsApi.save(doc.id, sectionsRef.current, doc.title.trim()).catch(() => {})}
+            onSectionChange={handleSectionChange}
+          />
         </div>
       </main>
 
-      <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
-        <DialogContent className="max-w-md bg-card border-border rounded-3xl">
-          <DialogHeader>
-            <DialogTitle>Вернуть на доработку</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 mt-2">
-            <Textarea
-              value={reviewComment}
-              onChange={(e) => setReviewComment(e.target.value)}
-              placeholder="Опишите, что нужно доработать студенту..."
-              className="min-h-[120px] bg-secondary/40 border-border resize-none"
-            />
-            <Button
-              onClick={handleRequestRevision}
-              disabled={reviewing || !reviewComment.trim()}
-              className="w-full bg-gradient-brand hover:opacity-90 border-0 font-semibold rounded-xl"
-            >
-              {reviewing ? <Icon name="Loader2" size={16} className="animate-spin" /> : 'Отправить студенту'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <DesignDocReviewDialog
+        open={reviewOpen}
+        onOpenChange={setReviewOpen}
+        reviewComment={reviewComment}
+        setReviewComment={setReviewComment}
+        reviewing={reviewing}
+        onRequestRevision={handleRequestRevision}
+      />
     </div>
   );
 };
